@@ -50,6 +50,14 @@ func Wrap(cause error, msg string, args ...any) *trackable {
 }
 
 func (e *trackable) Error() string {
+	if e.cause == nil {
+		return e.msg
+	}
+
+	return e.msg + ": " + e.cause.Error()
+}
+
+func (e *trackable) String() string {
 	return e.msg
 }
 

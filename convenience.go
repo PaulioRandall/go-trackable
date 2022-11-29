@@ -85,6 +85,10 @@ func AsStack(e error) []error {
 }
 
 func ErrorWithoutCause(e error) string {
+	if stringer, ok := e.(fmt.Stringer); ok {
+		return stringer.String()
+	}
+
 	cause := errors.Unwrap(e)
 	s := e.Error()
 
