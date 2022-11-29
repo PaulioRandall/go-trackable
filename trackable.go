@@ -14,6 +14,11 @@ type trackable struct {
 	cause error
 }
 
+// New is an alias for the Track function.
+func New(msg string, args ...any) *trackable {
+	return Track(msg, args...)
+}
+
 // Track returns a new trackable error, that is, one with a tracking ID.
 //
 // This function is designed to be called during package initialisation only.
@@ -45,7 +50,7 @@ func Wrap(cause error, msg string, args ...any) *trackable {
 }
 
 func (e *trackable) Error() string {
-	return ErrorStack(e.msg, e.cause)
+	return e.msg
 }
 
 func (e trackable) Unwrap() error {

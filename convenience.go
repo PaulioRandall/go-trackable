@@ -3,6 +3,7 @@ package trackable
 import (
 	"errors"
 	"fmt"
+	"strings"
 )
 
 // IsTracked returns true if the error has a trackable ID greater than zero.
@@ -36,18 +37,62 @@ func Any(e error, targets ...error) bool {
 	return false
 }
 
-// Debug is a convenience for fmt.Print("ERROR: ", e.Error()).
+// Debug is convenience for fmt.Println("[Debug error]\n", ErrorStack(e)).
 func Debug(e error) (int, error) {
-	if e == nil {
-		return fmt.Print("ERROR: nil")
+	s := ErrorStack(e)
+
+	if s == "" {
+		return fmt.Print("[Debug error] nil error")
 	}
-	return fmt.Print("ERROR: ", e.Error())
+
+	return fmt.Print("[Debug error]\n", s)
 }
 
-// Debugln is a convenience for fmt.Println("ERROR: ", e.Error()).
-func Debugln(e error) (int, error) {
-	if e == nil {
-		return fmt.Print("ERROR: nil")
+// ErrorStack is convenience for StackTraceWith(e, "  ", "\n⤷ ", "").
+func ErrorStack(e error) string {
+	return ErrorStackWith(e, "  ", "\n⤷ ", "")
+}
+
+// ErrorStackWith returns a human readable representation of the error stack.
+func ErrorStackWith(e error, prefix, delim, suffix string) string {
+	sb := strings.Builder{}
+	sb.WriteString(prefix)
+
+	for i, cause := range AsStack(e) {
+		if i > 0 {
+			sb.WriteString(delim)
+		}
+
+		s := ErrorWithoutCause(cause)
+		sb.WriteString(s)
 	}
-	return fmt.Println("ERROR: ", e.Error())
+
+	sb.WriteString(suffix)
+	return sb.String()
+}
+
+// AsStack recursively unwraps the error returning a slice of errors.
+//
+// The passed error will be first and root cause last.
+func AsStack(e error) []error {
+	var stack []error
+
+	for ; e != nil; e = errors.Unwrap(e) {
+		stack = append(stack, e)
+	}
+
+	return stack
+}
+
+func ErrorWithoutCause(e error) string {
+	cause := errors.Unwrap(e)
+	s := e.Error()
+
+	if cause == nil {
+		return s
+	}
+
+	s = strings.TrimSuffix(s, cause.Error())
+	s = strings.TrimSpace(s)
+	return strings.TrimSuffix(s, ":")
 }

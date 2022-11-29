@@ -22,5 +22,5 @@ func otherPackageAPI() error {
 	e := errors.New("This is the root cause")
 	e = fmt.Errorf("This is the parent cause: %w", e)
 	e = fmt.Errorf("This is the grand parent cause: %w", e)
-	return fmt.Errorf("This is error wrapped at the API boundary: %w", e)
+	return fmt.Errorf("This is the error wrapped at the API boundary: %w", e)
 }
