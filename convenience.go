@@ -48,19 +48,23 @@ func Debug(e error) (int, error) {
 	return fmt.Print("[Debug error]\n", s)
 }
 
-// ErrorStack is convenience for StackTraceWith(e, "  ", "\n⤷ ", "").
+// ErrorStack is convenience for StackTraceWith(e, "  ", "\n⤷ ", "\n⊖ ", "").
 func ErrorStack(e error) string {
-	return ErrorStackWith(e, "  ", "\n⤷ ", "")
+	return ErrorStackWith(e, "⊖ ", "\n⤷ ", "\n⊖ ", "")
 }
 
 // ErrorStackWith returns a human readable representation of the error stack.
-func ErrorStackWith(e error, prefix, delim, suffix string) string {
+func ErrorStackWith(e error, prefix, delim, ifaceDelim, suffix string) string {
 	sb := strings.Builder{}
 	sb.WriteString(prefix)
 
 	for i, cause := range AsStack(e) {
 		if i > 0 {
-			sb.WriteString(delim)
+			if IsInterfaceError(cause) {
+				sb.WriteString(ifaceDelim)
+			} else {
+				sb.WriteString(delim)
+			}
 		}
 
 		s := ErrorWithoutCause(cause)
@@ -84,6 +88,11 @@ func AsStack(e error) []error {
 	return stack
 }
 
+// ErrorWithoutCause removes the cause from error messages that use the
+// standard concaternation.
+//
+// The standard concaternation being in the format '%s: %w' where s is the
+// error message and w is the cause's message.
 func ErrorWithoutCause(e error) string {
 	if stringer, ok := e.(fmt.Stringer); ok {
 		return stringer.String()
@@ -99,4 +108,17 @@ func ErrorWithoutCause(e error) string {
 	s = strings.TrimSuffix(s, cause.Error())
 	s = strings.TrimSpace(s)
 	return strings.TrimSuffix(s, ":")
+}
+
+// IsInterfaceError returns true if the error is flagged as being created at
+// the site of a key interface.
+func IsInterfaceError(e error) bool {
+	type iface interface {
+		IsInterface() bool
+	}
+
+	if v, ok := e.(iface); ok {
+		return v.IsInterface()
+	}
+	return false
 }

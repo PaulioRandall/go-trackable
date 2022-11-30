@@ -5,16 +5,17 @@ var (
 	//
 	// This can be useful if you're taking a stepwise refinement or test driven
 	// approach to writing code.
-	ErrTodo Trackable = Track("TODO: Implementation needed")
+	ErrTodo = Track("TODO: Implementation needed")
 
 	// ErrBug is a convenience trackable for use at the site of known bugs.
-	ErrBug Trackable = Track("BUG: Fix needed")
+	ErrBug = Track("BUG: Fix needed")
 
 	// ErrInsane is a convenience trackable for sanity checks.
-	ErrInsane Trackable = Track("Sanity check failed!!")
+	ErrInsane = Track("Sanity check failed!!")
 )
 
-// Trackable represents a trackable error.
+// Trackable represents a trackable error. This interface is primarily for
+// documentation.
 //
 // Trackable errors are just errors that one can use to precisely compare
 // without reference to the error message and easily construct elegant and
@@ -43,4 +44,15 @@ type Trackable interface {
 	// Because returns a copy of the receiving error constructing a cause by
 	// wrapping the passed cause with the error msg and args.
 	BecauseOf(cause error, msg string, args ...any) error
+
+	// Interface does the same as BecauseOf except the trackable error is marked
+	// as being at the boundary of a key interface.
+	//
+	// This allows stack traces to be partitioned so they are more meaningful,
+	// readable, and navigable.
+	Interface(cause error, msg string, args ...any) error
+
+	// IsInterface returns true if the trackable error was created at the site
+	// of a key interface.
+	IsInterface() bool
 }

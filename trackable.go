@@ -12,6 +12,7 @@ type trackable struct {
 	id    int
 	msg   string
 	cause error
+	iface bool
 }
 
 // New is an alias for the Track function.
@@ -28,6 +29,16 @@ func Track(msg string, args ...any) *trackable {
 	return &trackable{
 		id:  newId(),
 		msg: fmt.Sprintf(msg, args...),
+	}
+}
+
+// Interface is the same as Track except the trackable error is flagged as
+// being at the boundary of a key interface.
+func Interface(msg string, args ...any) *trackable {
+	return &trackable{
+		id:    newId(),
+		msg:   fmt.Sprintf(msg, args...),
+		iface: true,
 	}
 }
 
@@ -90,4 +101,15 @@ func (e trackable) Because(msg string, args ...any) error {
 func (e trackable) BecauseOf(cause error, msg string, args ...any) error {
 	e.cause = Wrap(cause, msg, args...)
 	return &e
+}
+
+func (e trackable) Interface(cause error, msg string, args ...any) error {
+	t := Wrap(cause, msg, args...)
+	t.iface = true
+	e.cause = t
+	return &e
+}
+
+func (e trackable) IsInterface() bool {
+	return e.iface
 }

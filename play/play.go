@@ -19,8 +19,8 @@ func runExample(id string) {
 	switch id {
 	case "1", "workflow":
 		examples.Workflow()
-	case "2", "thirdparty":
-		examples.ThirdParty()
+	case "2", "packages":
+		examples.Packages()
 	default:
 		log.Fatalf("Unknown example ID %q", id)
 	}
