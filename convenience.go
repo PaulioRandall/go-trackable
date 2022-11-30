@@ -50,7 +50,7 @@ func Debug(e error) (int, error) {
 
 // ErrorStack is convenience for StackTraceWith(e, "  ", "\n⤷ ", "\n⊖ ", "").
 func ErrorStack(e error) string {
-	return ErrorStackWith(e, "⊖ ", "\n⤷ ", "\n⊖ ", "")
+	return ErrorStackWith(e, "  ", "\n⤷ ", "\n⊖ ", "")
 }
 
 // ErrorStackWith returns a human readable representation of the error stack.
