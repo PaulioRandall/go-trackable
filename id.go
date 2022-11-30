@@ -1,6 +1,6 @@
 package trackable
 
-// id is an ID counter, always increment before assigning a new ID
+// id is an ID counter, always increment before assigning a new ID.
 var id int
 
 // newId is the function used to generate trackable error IDs.

@@ -34,6 +34,8 @@ func Track(msg string, args ...any) *trackable {
 
 // Interface is the same as Track except the trackable error is flagged as
 // being at the boundary of a key interface.
+//
+// This
 func Interface(msg string, args ...any) *trackable {
 	return &trackable{
 		id:    newId(),
