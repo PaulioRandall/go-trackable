@@ -9,8 +9,8 @@ import (
 
 var (
 	ErrExePackage = trackable.Interface("Failed to execuate packages")
-	ErrDoingThing = trackable.New("Failed to do a thing")
-	ErrCallingAPI = trackable.New("API returned an error")
+	ErrDoingThing = trackable.Track("Failed to do a thing")
+	ErrCallingAPI = trackable.Track("API returned an error")
 )
 
 func Packages() {

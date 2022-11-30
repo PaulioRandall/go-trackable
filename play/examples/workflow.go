@@ -18,10 +18,10 @@ func Workflow() {
 }
 
 var (
-	ErrExeWorkflow  = trackable.New("Failed to execute workflow")
-	ErrLoadingData  = trackable.New("Failed to load data")
-	ErrCleaningData = trackable.New("Failed to clean data")
-	ErrReadingCSV   = trackable.New("Failed to read CSV file")
+	ErrExeWorkflow  = trackable.Track("Failed to execute workflow")
+	ErrLoadingData  = trackable.Track("Failed to load data")
+	ErrCleaningData = trackable.Track("Failed to clean data")
+	ErrReadingCSV   = trackable.Track("Failed to read CSV file")
 )
 
 func workflow(filename string) error {

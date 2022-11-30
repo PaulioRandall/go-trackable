@@ -15,11 +15,6 @@ type trackable struct {
 	iface bool
 }
 
-// New is an alias for the Track function.
-func New(msg string, args ...any) *trackable {
-	return Track(msg, args...)
-}
-
 // Track returns a new trackable error, that is, one with a tracking ID.
 //
 // This function is designed to be called during package initialisation only.
@@ -62,7 +57,7 @@ func Wrap(cause error, msg string, args ...any) *trackable {
 	}
 }
 
-func (e *trackable) Error() string {
+func (e trackable) Error() string {
 	if e.cause == nil {
 		return e.msg
 	}
@@ -70,7 +65,7 @@ func (e *trackable) Error() string {
 	return e.msg + ": " + e.cause.Error()
 }
 
-func (e *trackable) String() string {
+func (e trackable) String() string {
 	return e.msg
 }
 
