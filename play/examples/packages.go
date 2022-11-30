@@ -38,7 +38,7 @@ func doThing() error {
 
 func useOtherPackage() error {
 	if e := unhappyAPI(); e != nil {
-		return ErrCallingAPI.Interface(e, "UnhappyAPI returned an error")
+		return ErrCallingAPI.InterfaceOf(e, "UnhappyAPI returned an error")
 	}
 
 	return nil

@@ -46,12 +46,19 @@ type Trackable interface {
 	// wrapping the passed cause with the error msg and args.
 	BecauseOf(cause error, msg string, args ...any) error
 
-	// Interface does the same as BecauseOf except the trackable error is marked
+	// Interface does the same as Because except the trackable error is marked
 	// as being at the boundary of a key interface.
 	//
 	// This allows stack traces to be partitioned so they are more meaningful,
 	// readable, and navigable.
-	Interface(cause error, msg string, args ...any) error
+	Interface(msg string, args ...any) error
+
+	// InterfaceOf does the same as BecauseOf except the trackable error is marked
+	// as being at the boundary of a key interface.
+	//
+	// This allows stack traces to be partitioned so they are more meaningful,
+	// readable, and navigable.
+	InterfaceOf(cause error, msg string, args ...any) error
 
 	// IsInterface returns true if the trackable error was created at the site
 	// of a key interface.

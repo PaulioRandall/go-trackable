@@ -100,7 +100,14 @@ func (e trackable) BecauseOf(cause error, msg string, args ...any) error {
 	return &e
 }
 
-func (e trackable) Interface(cause error, msg string, args ...any) error {
+func (e trackable) Interface(msg string, args ...any) error {
+	t := Untracked(msg, args...)
+	t.iface = true
+	e.cause = t
+	return &e
+}
+
+func (e trackable) InterfaceOf(cause error, msg string, args ...any) error {
 	t := Wrap(cause, msg, args...)
 	t.iface = true
 	e.cause = t
