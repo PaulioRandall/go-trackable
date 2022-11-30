@@ -21,6 +21,7 @@ var (
 // without reference to the error message and easily construct elegant and
 // readable stack traces.
 type Trackable interface {
+
 	// Unwrap returns the underlying cause or nil if none exists.
 	//
 	// It is designed to work with the Is function exposed by the standard errors
