@@ -7,7 +7,7 @@ I hope the code speaks mostly for itself so you don't have to trawl through my r
 ## Importing
 
 ```go
-import "github.com/PaulioRandall/trackable"
+import "github.com/PaulioRandall/go-trackable"
 ```
 
 ## Tracking an error
@@ -138,7 +138,7 @@ import (
 )
 
 func TestReadingCSV(t *testing.T) {
-	e := ReadCSV("/bad/file/path")
+  e := ReadCSV("/bad/file/path")
   
   if !errors.Is(e, ErrReadingCSV) {
   t.Log("Expected reading CSV error but either got no error or a different error")
