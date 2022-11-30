@@ -4,10 +4,51 @@ Go Trackable is a library for creating trackable, traceable, and comparable erro
 
 I hope the code speaks mostly for itself so you don't have to trawl through my ramblings.
 
-## Importing
+## Quick start
 
 ```go
 import "github.com/PaulioRandall/go-trackable"
+
+var (
+  ErrTooMuchText = trackable.Track("Too much text to write")
+  ErrCreatingFile = trackable.Track("Failed creating file")
+  ErrWritingText = trackable.Track("Failed writing text to file")
+)
+
+func SaveText(filename, text string) {
+  e := writeTextToFile(filename, text)
+  if e != nil {
+    log.Println(trackable.ErrorStack(e))
+  }
+  
+  if trackable.Any(e, ErrCreatingFile, ErrWritingText) {
+    log.Println("Did you forget file system permissions again?")
+  }
+}
+
+func writeTextToFile(filename, text string) error {
+  if len(text) > 256 {
+    return ErrTooMuchText.Because("I'm lazy and only want to write 256 bytes but you gave me %d", len(text))
+  }
+  
+  f, e := os.Create(filename)
+  if e != nil {
+    return ErrCreatingFile.BecauseOf(e, "File %q failed to open", filename)
+  }
+  defer f.Close()
+  
+  _, e := f.WriteString(text)
+  if e != nil {
+    return ErrWritingText.Wrap(e)
+  }
+  
+  // ...
+}
+
+// Resultant stack trace:
+//   Failed writing text to file
+// ⤷ Failed to open <filename>
+// ⤷ <the wrapped error's message>
 ```
 
 ## Usage
