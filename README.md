@@ -149,7 +149,7 @@ func TestReadingCSV(t *testing.T) {
   e := ReadCSV("/bad/file/path")
   
   if !errors.Is(e, ErrReadingCSV) {
-  t.Log("Expected reading CSV error but either got no error or a different error")
+    t.Log("Expected CSV read error but got either no error or a different error")
     t.Fail()
   }
 }
@@ -194,6 +194,90 @@ func UnhappyAPI() error {
 // ⤷ UnhappyAPI error wrapping at the package boundary
 // ⤷ UnhappyAPI error that wraps the cause
 // ⤷ UnhappyAPI error root cause
+```
+
+## Convenience
+
+There are a bunch of convenience package functions available for handling these errors.
+
+```go
+// IsTracked returns true if the error has a trackable ID greater than zero.
+func IsTracked(e error) bool
+
+// Is is an alias for errors.Is. Because I like to keep a concise import list. 
+func Is(e, target error) bool
+
+// All returns true only if errors.Is returns true for all targets.
+func All(e error, targets ...error) bool
+
+// Any returns true if errors.Is returns true for any of the targets.
+func Any(e error, targets ...error) bool
+
+// Debug is convenience for fmt.Println("[Debug error]\n", ErrorStack(e)).
+func Debug(e error) (int, error)
+
+// ErrorStack is convenience for StackTraceWith(e, "  ", "\n⤷ ", "\n⊖ ", "").
+//
+// Example output:
+//    [Debug error]
+//      Failed to execuate packages
+//      ⤷ Could not do that thing
+//      ⤷ API returned an error
+//      ⊖ UnhappyAPI returned an error
+//      ⤷ This is the error wrapped at the API boundary
+//      ⤷ This is the root cause
+func ErrorStack(e error) string
+
+// ErrorStackWith returns a human readable representation of the error stack.
+//
+// Given:
+//    ErrorStackWith(e, "  ", "\n⤷ ", "\n⊖ ", "")
+//
+// Outputs:
+//    [Debug error]
+//      Failed to execuate packages
+//      ⤷ Could not do that thing
+//      ⤷ API returned an error
+//      ⊖ UnhappyAPI returned an error
+//      ⤷ This is the error wrapped at the API boundary
+//      ⤷ This is the root cause
+func ErrorStackWith(e error, prefix, delim, ifaceDelim, suffix string) string
+
+// AsStack recursively unwraps the error returning a slice of errors.
+//
+// The passed error will be first and root cause last.
+func AsStack(e error) []error
+
+// ErrorWithoutCause removes the cause from error messages that use the
+// standard concaternation.
+//
+// The standard concaternation being in the format '%s: %w' where s is the
+// error message and w is the cause's message.
+func ErrorWithoutCause(e error) string
+
+// IsInterfaceError returns true if the error is flagged as being created at
+// the site of a key interface.
+func IsInterfaceError(e error) bool
+```
+
+## Common errors
+
+This package also provides a few common errors that you may want to return or panic with. 
+
+```go
+var (
+  // ErrTodo is a convenience trackable for specifying a TODO.
+  //
+  // This can be useful if you're taking a stepwise refinement or test driven
+  // approach to writing code.
+  ErrTodo = Track("TODO: Implementation needed")
+  
+  // ErrBug is a convenience trackable for use at the site of known bugs.
+  ErrBug = Track("BUG: Fix needed")
+  
+  // ErrInsane is a convenience trackable for sanity checks.
+  ErrInsane = Track("Sanity check failed!!")
+)
 ```
 
 ## Checking out (in both senses)
