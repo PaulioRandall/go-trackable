@@ -260,13 +260,12 @@ func Debug(e error) (int, error)
 // ErrorStack is convenience for StackTraceWith(e, "  ", "\n⤷ ", "\n⊖ ", "").
 //
 // Example output:
-//    [Debug error]
-//      Failed to execuate packages
-//      ⤷ Could not do that thing
-//      ⤷ API returned an error
-//      ⊖ UnhappyAPI returned an error
-//      ⤷ This is the error wrapped at the API boundary
-//      ⤷ This is the root cause
+//    Failed to execuate packages
+//    ⤷ Could not do that thing
+//    ⤷ API returned an error
+//    ⊖ UnhappyAPI returned an error
+//    ⤷ This is the error wrapped at the API boundary
+//    ⤷ This is the root cause
 func ErrorStack(e error) string
 
 // ErrorStackWith returns a human readable representation of the error stack.
@@ -275,13 +274,12 @@ func ErrorStack(e error) string
 //    ErrorStackWith(e, "  ", "\n⤷ ", "\n⊖ ", "")
 //
 // Outputs:
-//    [Debug error]
-//      Failed to execuate packages
-//      ⤷ Could not do that thing
-//      ⤷ API returned an error
-//      ⊖ UnhappyAPI returned an error
-//      ⤷ This is the error wrapped at the API boundary
-//      ⤷ This is the root cause
+//    Failed to execuate packages
+//    ⤷ Could not do that thing
+//    ⤷ API returned an error
+//    ⊖ UnhappyAPI returned an error
+//    ⤷ This is the error wrapped at the API boundary
+//    ⤷ This is the root cause
 func ErrorStackWith(e error, prefix, delim, ifaceDelim, suffix string) string
 
 // AsStack recursively unwraps the error returning a slice of errors.
