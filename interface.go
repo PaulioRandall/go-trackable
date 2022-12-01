@@ -1,3 +1,7 @@
+// Package trackable
+//
+// Trackable errors that one can use to precisely compare without reference to
+// the error message and easily construct elegant and readable stack traces.
 package trackable
 
 var (
@@ -16,10 +20,6 @@ var (
 
 // Trackable represents a trackable error. This interface is primarily for
 // documentation.
-//
-// Trackable errors are just errors that one can use to precisely compare
-// without reference to the error message and easily construct elegant and
-// readable stack traces.
 type Trackable interface {
 
 	// Unwrap returns the underlying cause or nil if none exists.
@@ -45,6 +45,8 @@ type Trackable interface {
 	// Because returns a copy of the receiving error constructing a cause by
 	// wrapping the passed cause with the error msg and args.
 	BecauseOf(cause error, msg string, args ...any) error
+
+	// TODO: Rename Interface to Checkpoint?
 
 	// Interface does the same as Because except the trackable error is marked
 	// as being at the boundary of a key interface.

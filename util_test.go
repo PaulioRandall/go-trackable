@@ -36,3 +36,8 @@ func Test_convenience_6(t *testing.T) {
 	require.False(t, Any(e, errWorkflow, errLoading))
 	require.True(t, Any(e, errWorkflow, errLoading, errReading))
 }
+
+// TODO: Test AsStack
+// TODO: Test ErrorStackWith
+// TODO: Test ErrorWithoutCause
+// TODO: Test IsInterfaceError

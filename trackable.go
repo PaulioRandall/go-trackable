@@ -4,6 +4,15 @@ import (
 	"fmt"
 )
 
+// TODO: Create a Session entity that allows sessions to be created where the
+// TODO: ID pool is part of the session. Keep a package instance like 'http'
+// TODO: package does because sessions will be redendant for most programs.
+
+// TODO: Think about how to integrate file names and line numbers.
+// TODO: - How, where, and when to collect them?
+// TODO: - How to optimise print outs with them?
+// TODO: - May have to redesign the Debug function?
+
 // trackable represents an error that uses an integer as an identifier.
 //
 // If an ID is less than or equal to zero then the error is categorised as
