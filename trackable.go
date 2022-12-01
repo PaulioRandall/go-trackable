@@ -4,6 +4,8 @@ import (
 	"fmt"
 )
 
+// TODO: Interface should be the name of the interface (string, not a bool)
+
 // TODO: Create a Session entity that allows sessions to be created where the
 // TODO: ID pool is part of the session. Keep a package instance like 'http'
 // TODO: package does because sessions will be redendant for most programs.
@@ -38,8 +40,6 @@ func Track(msg string, args ...any) *trackable {
 
 // Interface is the same as Track except the trackable error is flagged as
 // being at the boundary of a key interface.
-//
-// This
 func Interface(msg string, args ...any) *trackable {
 	return &trackable{
 		id:    newId(),
@@ -63,6 +63,16 @@ func Wrap(cause error, msg string, args ...any) *trackable {
 	return &trackable{
 		msg:   fmt.Sprintf(msg, args...),
 		cause: cause,
+	}
+}
+
+// WrapAtInterface is the same as Wrap but flags the but the trackable error is
+// flagged as being at the boundary of a key interface.
+func WrapAtInterface(cause error, msg string, args ...any) *trackable {
+	return &trackable{
+		msg:   fmt.Sprintf(msg, args...),
+		cause: cause,
+		iface: true,
 	}
 }
 

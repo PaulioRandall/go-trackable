@@ -231,7 +231,8 @@ func UnhappyAPI() error {
 // Resultant stack trace:
 //   Failed to do the thing
 // ⤷ Delegation returned an error
-// ⊖ The Unhappy API returned an error
+// ——Interface——
+//   The Unhappy API returned an error
 // ⤷ UnhappyAPI error wrapping at the package boundary
 // ⤷ UnhappyAPI error that wraps the cause
 // ⤷ UnhappyAPI error root cause
@@ -257,13 +258,14 @@ func Any(e error, targets ...error) bool
 // Debug is convenience for fmt.Println("[Debug error]\n", ErrorStack(e)).
 func Debug(e error) (int, error)
 
-// ErrorStack is convenience for StackTraceWith(e, "  ", "\n⤷ ", "\n⊖ ", "").
+// ErrorStack is convenience for ErrorStackWith(e, "  ", "\n⤷ ", "\n——Interface——\n  ", "").
 //
 // Example output:
 //    Failed to execuate packages
 //    ⤷ Could not do that thing
 //    ⤷ API returned an error
-//    ⊖ UnhappyAPI returned an error
+//    ——Interface——
+//    ⤷ UnhappyAPI returned an error
 //    ⤷ This is the error wrapped at the API boundary
 //    ⤷ This is the root cause
 func ErrorStack(e error) string
@@ -271,13 +273,14 @@ func ErrorStack(e error) string
 // ErrorStackWith returns a human readable representation of the error stack.
 //
 // Given:
-//    ErrorStackWith(e, "  ", "\n⤷ ", "\n⊖ ", "")
+//    StackTraceWith(e, "  ", "\n⤷ ", "\n——Interface——\n  ", "").
 //
 // Outputs:
 //    Failed to execuate packages
 //    ⤷ Could not do that thing
 //    ⤷ API returned an error
-//    ⊖ UnhappyAPI returned an error
+//    ——Interface——
+//    ⤷ UnhappyAPI returned an error
 //    ⤷ This is the error wrapped at the API boundary
 //    ⤷ This is the root cause
 func ErrorStackWith(e error, prefix, delim, ifaceDelim, suffix string) string

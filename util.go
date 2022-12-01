@@ -48,29 +48,32 @@ func Debug(e error) (int, error) {
 	return fmt.Print("[Debug error]\n", s)
 }
 
-// ErrorStack is convenience for StackTraceWith(e, "  ", "\n⤷ ", "\n⊖ ", "").
+// ErrorStack is convenience for
+// 		ErrorStackWith(e, "  ", "\n⤷ ", "\n——Interface——", "\n").
 //
-// Example output:
-//		Failed to execuate packages
+// Output example:
+//		  Failed to execuate packages
 //		⤷ Could not do that thing
 //		⤷ API returned an error
-//		⊖ UnhappyAPI returned an error
+//		⤷ UnhappyAPI returned an error
+//		——Interface——
 //		⤷ This is the error wrapped at the API boundary
 //		⤷ This is the root cause
 func ErrorStack(e error) string {
-	return ErrorStackWith(e, "  ", "\n⤷ ", "\n⊖ ", "")
+	return ErrorStackWith(e, "  ", "\n⤷ ", "\n——Interface——", "\n")
 }
 
 // ErrorStackWith returns a human readable representation of the error stack.
 //
 // Given:
-//		ErrorStackWith(e, "  ", "\n⤷ ", "\n⊖ ", "")
+// 		ErrorStackWith(e, "  ", "\n⤷ ", "\n——Interface——", "\n").
 //
-// Outputs:
-//		Failed to execuate packages
+// Output example:
+//		  Failed to execuate packages
 //		⤷ Could not do that thing
 //		⤷ API returned an error
-//		⊖ UnhappyAPI returned an error
+//		⤷ UnhappyAPI returned an error
+//		——Interface——
 //		⤷ This is the error wrapped at the API boundary
 //		⤷ This is the root cause
 func ErrorStackWith(e error, prefix, delim, ifaceDelim, suffix string) string {
@@ -79,15 +82,15 @@ func ErrorStackWith(e error, prefix, delim, ifaceDelim, suffix string) string {
 
 	for i, cause := range AsStack(e) {
 		if i > 0 {
-			if IsInterfaceError(cause) {
-				sb.WriteString(ifaceDelim)
-			} else {
-				sb.WriteString(delim)
-			}
+			sb.WriteString(delim)
 		}
 
 		s := ErrorWithoutCause(cause)
 		sb.WriteString(s)
+
+		if IsInterfaceError(cause) {
+			sb.WriteString(ifaceDelim)
+		}
 	}
 
 	sb.WriteString(suffix)
