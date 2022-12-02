@@ -10,39 +10,39 @@ I hope the code speaks mostly for itself so you don't have to trawl through my r
 import "github.com/PaulioRandall/go-trackable"
 
 var (
-  ErrTooMuchText = trackable.Track("Too much text to write")
-  ErrCreatingFile = trackable.Track("Failed creating file")
-  ErrWritingText = trackable.Track("Failed writing text to file")
+	ErrTooMuchText = trackable.Track("Too much text to write")
+	ErrCreatingFile = trackable.Track("Failed creating file")
+	ErrWritingText = trackable.Track("Failed writing text to file")
 )
 
 func SaveText(filename, text string) {
-  e := writeTextToFile(filename, text)
-  if e != nil {
-    log.Println(trackable.ErrorStack(e))
-  }
-  
-  if trackable.Any(e, ErrCreatingFile, ErrWritingText) {
-    log.Println("Did you forget file system permissions again?")
-  }
+	e := writeTextToFile(filename, text)
+	if e != nil {
+		log.Println(trackable.ErrorStack(e))
+	}
+	
+	if trackable.Any(e, ErrCreatingFile, ErrWritingText) {
+		log.Println("Did you forget file system permissions again?")
+	}
 }
 
 func writeTextToFile(filename, text string) error {
-  if len(text) > 256 {
-    return ErrTooMuchText.Because("I'm lazy and only want to write 256 bytes but you gave me %d", len(text))
-  }
-  
-  f, e := os.Create(filename)
-  if e != nil {
-    return ErrCreatingFile.BecauseOf(e, "File %q failed to open", filename)
-  }
-  defer f.Close()
-  
-  _, e := f.WriteString(text)
-  if e != nil {
-    return ErrWritingText.Wrap(e)
-  }
-  
-  // ...
+	if len(text) > 256 {
+		return ErrTooMuchText.Because("I'm lazy and only want to write 256 bytes but you gave me %d", len(text))
+	}
+	
+	f, e := os.Create(filename)
+	if e != nil {
+		return ErrCreatingFile.BecauseOf(e, "File %q failed to open", filename)
+	}
+	defer f.Close()
+	
+	_, e := f.WriteString(text)
+	if e != nil {
+		return ErrWritingText.Wrap(e)
+	}
+	
+	// ...
 }
 
 // Resultant stack trace:
@@ -74,54 +74,47 @@ When we want to track an error we have several options. Here is the full interfa
 // readable stack traces.
 type Trackable interface {
 	
-  // Unwrap returns the underlying cause or nil if none exists.
-  //
-  // It is designed to work with the Is function exposed by the standard errors
-  // package.
-  Unwrap() error
-  
-  // Is returns true if the passed error is equivalent to the receiving
-  // trackable error.
-  //
-  // This is a shallow comparison so causes are not checked. It is designed to
-  // work with the Is function exposed by the standard errors package.
-  Is(error) bool
-  
-  // Wrap returns a copy of the receiving error with the passed cause.
-  Wrap(cause error) error
+	// Unwrap returns the underlying cause or nil if none exists.
+	//
+	// It is designed to work with the Is function exposed by the standard errors
+	// package.
+	Unwrap() error
+	
+	// Is returns true if the passed error is equivalent to the receiving
+	// trackable error.
+	//
+	// This is a shallow comparison so causes are not checked. It is designed to
+	// work with the Is function exposed by the standard errors package.
+	Is(error) bool
+	
+	// Wrap returns a copy of the receiving error with the passed cause.
+	Wrap(cause error) error
 
-  // AsError returns a shallow copy of the trackable error as an error.
-  AsError() error
-  
-  // Because returns a copy of the receiving error constructing a cause from
-  // msg and args.
-  Because(msg string, args ...any) error
-  
-  // Because returns a copy of the receiving error constructing a cause by
-  // wrapping the passed cause with the error msg and args.
-  BecauseOf(cause error, msg string, args ...any) error
-  
-  // Interface does the same as Because except the trackable error is marked
-  // as being at the boundary of a key interface.
-  //
-  // This allows stack traces to be partitioned so they are more meaningful,
-  // readable, and navigable.
-  Interface(msg string, args ...any) error
-  
-  // InterfaceOf does the same as BecauseOf except the trackable error is marked
-  // as being at the boundary of a key interface.
-  //
-  // This allows stack traces to be partitioned so they are more meaningful,
-  // readable, and navigable.
-  InterfaceOf(cause error, msg string, args ...any) error
-  
-  // IsInterface returns true if the trackable error was created at the site
-  // of a key interface.
-  IsInterface() bool
+	// AsError returns a shallow copy of the trackable error as an error.
+	AsError() error
+	
+	// Because returns a copy of the receiving error constructing a cause from
+	// msg and args.
+	Because(msg string, args ...any) error
+	
+	// Because returns a copy of the receiving error constructing a cause by
+	// wrapping the passed cause with the error msg and args.
+	BecauseOf(cause error, msg string, args ...any) error
+	
+	// Interface is the same as Wrap but is given an interface name as to
+	// indicate it being at the boundary of a key interface.
+	//
+	// This allows stack traces to be partitioned so they are more meaningful,
+	// readable, and navigable.
+	Interface(cause error, name string) error
+
+	// InterfaceName returns the name the key interface or an empty string if no
+	// name was set.
+	InterfaceName() string
 }
 ```
 
-`Unwrap` and `Is` are receiving functions that work with Go's standard `errors` package. `AsError` produces a shallow copy as a standard error. `Interface` and `IsInterface` are described later and are geared towards helping to create meaningful and navigable stack traces.
+`Unwrap` and `Is` are receiving functions that work with Go's standard `errors` package. `AsError` produces a shallow copy as a standard error. `Interface` is described later and geared towards helping to create meaningful and navigable stack traces.
 
 `Wrap`, `Because`, and `BecauseOf` are the ones we are interested in first.
 
@@ -131,11 +124,11 @@ Wrapping is straight forward. `e` will be wrapped by a **COPY** of `ErrReadingCS
 
 ```go
 func ReadCSV(filename string) error {
-  _, e := os.Open(filename)
-  if e != nil {
-    return ErrReadingCSV.Wrap(e)
-  }
-  // ...
+	_, e := os.Open(filename)
+	if e != nil {
+		return ErrReadingCSV.Wrap(e)
+	}
+	// ...
 }
 
 // Resultant stack trace:
@@ -149,10 +142,10 @@ We can create our own root cause. The `fmt.Sprintf` interface is used.
 
 ```go
 func ReadCSV(filename string) error {
-  if !isValidCSVFile(filename) {
-    return ErrReadingCSV.Because("%q is not a valid CSV file", filename)
-  }
-  // ...
+	if !isValidCSVFile(filename) {
+		return ErrReadingCSV.Because("%q is not a valid CSV file", filename)
+	}
+	// ...
 }
 
 // Resultant stack trace:
@@ -166,11 +159,11 @@ We also have a convenience function which wraps the cause `e` in a new error whi
 
 ```go
 func ReadCSV(filename string) error {
-  _, e := os.Open(filename)
-  if e != nil {
-    return ErrReadingCSV.BecauseOf(e, "Could not open %q", filename)
-  }
-  // ...
+	_, e := os.Open(filename)
+	if e != nil {
+		return ErrReadingCSV.BecauseOf(e, "Could not open %q", filename)
+	}
+	// ...
 }
 
 // Resultant stack trace:
@@ -185,57 +178,57 @@ One place tracking becomes useful is when asserting errors in tests. Many progra
 
 ```go
 import (
-  "errors"
-  "testing"
+	"errors"
+	"testing"
 )
 
 func TestReadingCSV(t *testing.T) {
-  e := ReadCSV("/bad/file/path")
-  
-  if !errors.Is(e, ErrReadingCSV) {
-    t.Log("Expected CSV read error but got either no error or a different error")
-    t.Fail()
-  }
+	e := ReadCSV("/bad/file/path")
+	
+	if !errors.Is(e, ErrReadingCSV) {
+		t.Log("Expected CSV read error but got either no error or a different error")
+		t.Fail()
+	}
 }
 ```
 
 ### .Interface
 
-The `Interface` and `InterfaceOf` receiving functions have the same signatures as `Because` and `BecauseOf` but flags the error as being at a key interface boundary or checkpoint. It may be used to indicate when an error has been returned from a call to another package.
+The `Interface` receiving function has the same signature as `Because` but sets a name for the key interface boundary where the error was created or wrapped. It may be used to indicate when an error has been returned from a call to another package.
 
 It's a little nuanced but when printing the stack trace we highlight these interface error messages to indicate where the key checkpoints or interface boundaries are.
 
 ```go
 var (
-  ErrDoingThing = trackable.Track("Failed to do the thing")
-  ErrDelegating = trackable.Track("Delegation returned an error")
+	ErrDoingThing = trackable.Track("Failed to do the thing")
+	ErrDelegating = trackable.Track("Delegation returned an error")
 )
 
 func doThing() error {
-  if e := delegateDoingTheThing(); e != nil {
-    return ErrDoingThing.Wrap(e)
-  }
-  return nil
+	if e := delegateDoingTheThing(); e != nil {
+		return ErrDoingThing.Wrap(e)
+	}
+	return nil
 }
 
 func delegateDoingTheThing() error {
-  if e := UnhappyAPI(); e != nil {
-    return ErrDelegating.InterfaceOf(e, "The Unhappy API returned an error")
-  }
-  return nil
+	if e := UnhappyAPI(); e != nil {
+		return ErrDelegating.InterfaceOf(e, "The Unhappy API returned an error")
+	}
+	return nil
 }
 
 func UnhappyAPI() error {
-  e := errors.New("UnhappyAPI error root cause")
-  e = fmt.Errorf("UnhappyAPI error that wraps the cause: %w", e)
-  return fmt.Errorf("UnhappyAPI error wrapping at the package boundary: %w", e)
+	e := errors.New("UnhappyAPI error root cause")
+	e = fmt.Errorf("UnhappyAPI error that wraps the cause: %w", e)
+	return fmt.Errorf("UnhappyAPI error wrapping at the package boundary: %w", e)
 }
 
 // Resultant stack trace:
 //   Failed to do the thing
 // ⤷ Delegation returned an error
-// ——Interface——
-//   The Unhappy API returned an error
+// ——Interface: UnhappyAPI
+// ⤷ The Unhappy API returned an error
 // ⤷ UnhappyAPI error wrapping at the package boundary
 // ⤷ UnhappyAPI error that wraps the cause
 // ⤷ UnhappyAPI error root cause
@@ -261,14 +254,15 @@ func Any(e error, targets ...error) bool
 // Debug is convenience for fmt.Println("[Debug error]\n", ErrorStack(e)).
 func Debug(e error) (int, error)
 
-// ErrorStack is convenience for ErrorStackWith(e, "  ", "\n⤷ ", "\n——Interface——\n  ", "").
+// ErrorStack is convenience for
+//    ErrorStackWith(e, "  ", "\n⤷ ", "\n——Interface: ", "\n").
 //
-// Example output:
-//    Failed to execuate packages
+// Output example:
+//      Failed to execuate packages
 //    ⤷ Could not do that thing
 //    ⤷ API returned an error
-//    ——Interface——
 //    ⤷ UnhappyAPI returned an error
+//    ——Interface——
 //    ⤷ This is the error wrapped at the API boundary
 //    ⤷ This is the root cause
 func ErrorStack(e error) string
@@ -276,14 +270,14 @@ func ErrorStack(e error) string
 // ErrorStackWith returns a human readable representation of the error stack.
 //
 // Given:
-//    StackTraceWith(e, "  ", "\n⤷ ", "\n——Interface——\n  ", "").
+//    ErrorStackWith(e, "  ", "\n⤷ ", "\n——Interface: ", "\n").
 //
-// Outputs:
-//    Failed to execuate packages
+// Output example:
+//      Failed to execuate packages
 //    ⤷ Could not do that thing
 //    ⤷ API returned an error
-//    ——Interface——
 //    ⤷ UnhappyAPI returned an error
+//    ——Interface: UnhappyAPI
 //    ⤷ This is the error wrapped at the API boundary
 //    ⤷ This is the root cause
 func ErrorStackWith(e error, prefix, delim, ifaceDelim, suffix string) string
@@ -300,9 +294,9 @@ func AsStack(e error) []error
 // error message and w is the cause's message.
 func ErrorWithoutCause(e error) string
 
-// IsInterfaceError returns true if the error is flagged as being created at
-// the site of a key interface.
-func IsInterfaceError(e error) bool
+// InterfaceName returns the name of the interface where the error occurred if
+// one is available.
+func InterfaceName(e error) string
 ```
 
 ## Common errors
@@ -311,17 +305,17 @@ This package also provides a few common errors that you may want to return or pa
 
 ```go
 var (
-  // ErrTodo is a convenience trackable for specifying a TODO.
-  //
-  // This can be useful if you're taking a stepwise refinement or test driven
-  // approach to writing code.
-  ErrTodo = Track("TODO: Implementation needed")
-  
-  // ErrBug is a convenience trackable for use at the site of known bugs.
-  ErrBug = Track("BUG: Fix needed")
-  
-  // ErrInsane is a convenience trackable for sanity checks.
-  ErrInsane = Track("Sanity check failed!!")
+	// ErrTodo is a convenience trackable for specifying a TODO.
+	//
+	// This can be useful if you're taking a stepwise refinement or test driven
+	// approach to writing code.
+	ErrTodo = Track("TODO: Implementation needed")
+	
+	// ErrBug is a convenience trackable for use at the site of known bugs.
+	ErrBug = Track("BUG: Fix needed")
+	
+	// ErrInsane is a convenience trackable for sanity checks.
+	ErrInsane = Track("Sanity check failed!!")
 )
 ```
 
@@ -339,8 +333,13 @@ git clone https://github.com/PaulioRandall/go-trackable.git
 cd go-trackable
 ```
 
-3. Go commands can be used from here but my ./godo script makes things easier. To see usage:
+3. Go commands can be used from here but my ./godo script eases things:
 
 ```bash
-./godo
+./godo [help]   # Print usage
+./godo doc[s]   # Fire up documentation server
+./godo clean    # Clean Go caches and bin folder
+./godo fmt      # fmt
+./godo test     # fmt -> build -> test -> vet
+./godo play     # fmt -> build -> test -> vet -> play
 ```

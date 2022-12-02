@@ -8,7 +8,7 @@ import (
 )
 
 var (
-	ErrExePackage = trackable.Interface("Failed to execuate packages")
+	ErrExePackage = trackable.Interface("Packages", "Failed to execuate packages")
 	ErrDoingThing = trackable.Track("Failed to do a thing")
 	ErrCallingAPI = trackable.Track("API returned an error")
 )
@@ -38,7 +38,7 @@ func doThing() error {
 
 func useOtherPackage() error {
 	if e := unhappyAPI(); e != nil {
-		return ErrCallingAPI.InterfaceOf(e, "UnhappyAPI returned an error")
+		return ErrCallingAPI.Interface(e, "UnhappyAPI")
 	}
 
 	return nil

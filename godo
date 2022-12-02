@@ -13,119 +13,119 @@ BUILD_FLAGS=""
 #BUILD_FLAGS=-gcflags -m -ldflags "-s -w"
 
 printUsage() {
-  println "Usage:"
-  println "\t" "./godo [help]" "\t" "Print usage"
-  println "\t" "./godo doc[s]" "\t" "Fire up documentation server"
-  println "\t" "./godo clean " "\t" "Clean Go caches and build folder"
-  println "\t" "./godo fmt   " "\t" "fmt"
-  println "\t" "./godo test  " "\t" "fmt -> build -> test -> vet"
-  println "\t" "./godo play  " "\t" "fmt -> build -> test -> vet -> play"
+	println "Usage:"
+	println "\t" "./godo [help]" "\t\t" "# Print usage"
+	println "\t" "./godo doc[s]" "\t\t" "# Fire up documentation server"
+	println "\t" "./godo clean " "\t\t" "# Clean Go caches and build folder"
+	println "\t" "./godo fmt   " "\t\t" "# fmt"
+	println "\t" "./godo test  " "\t\t" "# fmt -> build -> test -> vet"
+	println "\t" "./godo play  " "\t\t" "# fmt -> build -> test -> vet -> play"
 }
 
 println() {
-  for s in "$@"
-  do
-    printf "$s"
-  done
-  printf "\\n"
+	for s in "$@"
+	do
+		printf "$s"
+	done
+	printf "\\n"
 }
 
 goDoc() {
-  doc_port=":9999"
+	doc_port=":9999"
 
-  println "Documentation..."
-  println "\t" "Libs    - http://localhost${doc_port}/pkg/#thirdparty"
-  println "\t" "Go      - http://localhost${doc_port}/pkg/#stdlib"
-  println "\t" "All     - http://localhost${doc_port}/"
-  
-  godoc -http=${doc_port}
+	println "Documentation..."
+	println "\t" "Libs    - http://localhost${doc_port}/pkg/#thirdparty"
+	println "\t" "Go      - http://localhost${doc_port}/pkg/#stdlib"
+	println "\t" "All     - http://localhost${doc_port}/"
+	
+	godoc -http=${doc_port}
 }
 
 clean() {
-  println "Cleaning..."
-  rm -r -f "$BUILD_DIR"
+	println "Cleaning..."
+	rm -r -f "$BUILD_DIR"
 }
 
 setup() {
-  println "Setup..."
-  mkdir -p "$BUILD_DIR"
+	println "Setup..."
+	mkdir -p "$BUILD_DIR"
 }
 
 goClean() {
-  println "Deep cleaning..."
-  go clean -cache -testcache
+	println "Deep cleaning..."
+	go clean -cache -testcache
 }
 
 goBuild() {
-  println "Building..."
-  go build -o "$BUILD_DIR/$EXE_NAME" $BUILD_FLAGS $MAIN_FILE
+	println "Building..."
+	go build -o "$BUILD_DIR/$EXE_NAME" $BUILD_FLAGS $MAIN_FILE
 }
 
 goFmt() {
-  println "Formatting..."
-  go fmt ./...
+	println "Formatting..."
+	go fmt ./...
 }
 
 goTest() {
-  println "Testing..."
-  go test ./... -timeout $TEST_TIMEOUT
+	println "Testing..."
+	go test ./... -timeout $TEST_TIMEOUT
 }
 
 goVet() {
-  println "Vetting..."
-  go vet ./...
+	println "Vetting..."
+	go vet ./...
 }
 
 goExe() {
-  println "Running..."
-  "$BUILD_DIR/$EXE_NAME" $@
+	println "Running..."
+	"$BUILD_DIR/$EXE_NAME" $@
 }
 
 if [[ "$1" == "" || "$1" == "help" ]]; then
-  printUsage
-  exit 0
+	printUsage
+	exit 0
 fi
 
 if [[ "$1" == "doc" || "$1" == "docs" ]]; then
-  goDoc
-  exit 0
+	goDoc
+	exit 0
 fi
 
 if [[ "$1" == "clean" ]]; then
-  clean
-  goClean
-  exit 0
+	clean
+	goClean
+	exit 0
 fi
 
 if [[ "$1" == "fmt" ]]; then
-  clean
-  goFmt
-  exit 0
+	clean
+	goFmt
+	exit 0
 fi
 
 if [[ "$1" == "test" ]]; then
-  clean
-  setup
-  goBuild
-  goFmt
-  goTest
-  goVet
-  exit 0
+	clean
+	setup
+	goBuild
+	goFmt
+	goTest
+	goVet
+	exit 0
 fi
 
 if [[ "$1" == "play" ]]; then
-  clean
-  setup
-  goBuild
-  goFmt
-  goTest
-  goVet
+	clean
+	setup
+	goBuild
+	goFmt
+	goTest
+	goVet
 
-  shift 1
-  goExe $@
+	shift 1
+	goExe $@
 
-  println
-  exit 0
+	println
+	exit 0
 fi
 
 println "I don't understand the option '$1'."

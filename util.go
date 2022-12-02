@@ -49,7 +49,7 @@ func Debug(e error) (int, error) {
 }
 
 // ErrorStack is convenience for
-// 		ErrorStackWith(e, "  ", "\n⤷ ", "\n——Interface——", "\n").
+// 		ErrorStackWith(e, "  ", "\n⤷ ", "\n——Interface: ", "\n").
 //
 // Output example:
 //		  Failed to execuate packages
@@ -60,20 +60,20 @@ func Debug(e error) (int, error) {
 //		⤷ This is the error wrapped at the API boundary
 //		⤷ This is the root cause
 func ErrorStack(e error) string {
-	return ErrorStackWith(e, "  ", "\n⤷ ", "\n——Interface——", "\n")
+	return ErrorStackWith(e, "  ", "\n⤷ ", "\n——Interface: ", "\n")
 }
 
 // ErrorStackWith returns a human readable representation of the error stack.
 //
 // Given:
-// 		ErrorStackWith(e, "  ", "\n⤷ ", "\n——Interface——", "\n").
+// 		ErrorStackWith(e, "  ", "\n⤷ ", "\n——Interface: ", "\n").
 //
 // Output example:
 //		  Failed to execuate packages
 //		⤷ Could not do that thing
 //		⤷ API returned an error
 //		⤷ UnhappyAPI returned an error
-//		——Interface——
+//		——Interface: UnhappyAPI
 //		⤷ This is the error wrapped at the API boundary
 //		⤷ This is the root cause
 func ErrorStackWith(e error, prefix, delim, ifaceDelim, suffix string) string {
@@ -88,8 +88,9 @@ func ErrorStackWith(e error, prefix, delim, ifaceDelim, suffix string) string {
 		s := ErrorWithoutCause(cause)
 		sb.WriteString(s)
 
-		if IsInterfaceError(cause) {
+		if iface := InterfaceName(cause); iface != "" {
 			sb.WriteString(ifaceDelim)
+			sb.WriteString(iface)
 		}
 	}
 
@@ -132,15 +133,15 @@ func ErrorWithoutCause(e error) string {
 	return strings.TrimSuffix(s, ":")
 }
 
-// IsInterfaceError returns true if the error is flagged as being created at
-// the site of a key interface.
-func IsInterfaceError(e error) bool {
+// InterfaceName returns the name of the interface where the error occurred if
+// one is available.
+func InterfaceName(e error) string {
 	type iface interface {
-		IsInterface() bool
+		InterfaceName() string
 	}
 
 	if v, ok := e.(iface); ok {
-		return v.IsInterface()
+		return v.InterfaceName()
 	}
-	return false
+	return ""
 }

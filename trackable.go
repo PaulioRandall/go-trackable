@@ -1,7 +1,5 @@
 package trackable
 
-// TODO: Interface should be the name of the interface (string, not a bool).
-
 // TODO: Rename BecauseOf to DueTo and find a similar replacements for
 // TODO: Interface & InterfaceOf
 
@@ -20,7 +18,7 @@ type trackable struct {
 	id    int
 	msg   string
 	cause error
-	iface bool
+	iface string
 }
 
 func (e trackable) Error() string {
@@ -70,20 +68,12 @@ func (e trackable) BecauseOf(cause error, msg string, args ...any) error {
 	return &e
 }
 
-func (e trackable) Interface(msg string, args ...any) error {
-	t := Untracked(msg, args...)
-	t.iface = true
-	e.cause = t
+func (e trackable) Interface(cause error, name string) error {
+	e.cause = cause
+	e.iface = name
 	return &e
 }
 
-func (e trackable) InterfaceOf(cause error, msg string, args ...any) error {
-	t := Wrap(cause, msg, args...)
-	t.iface = true
-	e.cause = t
-	return &e
-}
-
-func (e trackable) IsInterface() bool {
+func (e trackable) InterfaceName() string {
 	return e.iface
 }

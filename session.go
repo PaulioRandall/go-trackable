@@ -36,13 +36,13 @@ func (s *session) Track(msg string, args ...any) *trackable {
 	}
 }
 
-// Interface is the same as Track except the trackable error is flagged as
-// being at the boundary of a key interface.
-func (s *session) Interface(msg string, args ...any) *trackable {
+// Interface is the same as Track except the trackable error is given an
+// interface name as to indicate it being at the boundary of a key interface.
+func (s *session) Interface(name string, msg string, args ...any) *trackable {
 	return &trackable{
 		id:    s.newId(),
 		msg:   fmt.Sprintf(msg, args...),
-		iface: true,
+		iface: name,
 	}
 }
 
@@ -55,10 +55,10 @@ func Track(msg string, args ...any) *trackable {
 	return global.Track(msg, args...)
 }
 
-// Interface is the same as Track except the trackable error is flagged as
-// being at the boundary of a key interface.
-func Interface(msg string, args ...any) *trackable {
-	return global.Interface(msg, args...)
+// Interface is the same as Track except the trackable error is given an
+// interface name as to indicate it being at the boundary of a key interface.
+func Interface(name string, msg string, args ...any) *trackable {
+	return global.Interface(name, msg, args...)
 }
 
 // Untracked returns a new error without a tracking ID.
@@ -79,12 +79,13 @@ func Wrap(cause error, msg string, args ...any) *trackable {
 	}
 }
 
-// WrapAtInterface is the same as Wrap but flags the but the trackable error is
-// flagged as being at the boundary of a key interface.
-func WrapAtInterface(cause error, msg string, args ...any) *trackable {
+// WrapAtInterface is the same as Wrap but the trackable error is
+// given an interface name as to indicate it being at the boundary of a key
+// interface.
+func WrapAtInterface(cause error, name string, msg string, args ...any) *trackable {
 	return &trackable{
 		msg:   fmt.Sprintf(msg, args...),
 		cause: cause,
-		iface: true,
+		iface: name,
 	}
 }
