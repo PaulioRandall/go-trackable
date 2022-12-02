@@ -89,6 +89,9 @@ type Trackable interface {
   
   // Wrap returns a copy of the receiving error with the passed cause.
   Wrap(cause error) error
+
+  // AsError returns a shallow copy of the trackable error as an error.
+  AsError() error
   
   // Because returns a copy of the receiving error constructing a cause from
   // msg and args.
@@ -118,7 +121,7 @@ type Trackable interface {
 }
 ```
 
-`Unwrap` and `Is` are receiving functions that work with Go's standard `errors` package. `Interface` and `IsInterface` are described later and are geared towards helping to create meaningful and navigable stack traces.
+`Unwrap` and `Is` are receiving functions that work with Go's standard `errors` package. `AsError` produces a shallow copy as a standard error. `Interface` and `IsInterface` are described later and are geared towards helping to create meaningful and navigable stack traces.
 
 `Wrap`, `Because`, and `BecauseOf` are the ones we are interested in first.
 

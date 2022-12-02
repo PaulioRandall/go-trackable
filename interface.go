@@ -38,6 +38,9 @@ type Trackable interface {
 	// Wrap returns a copy of the receiving error with the passed cause.
 	Wrap(cause error) error
 
+	// AsError returns a shallow copy of the trackable error as an error.
+	AsError() error
+
 	// Because returns a copy of the receiving error constructing a cause from
 	// msg and args.
 	Because(msg string, args ...any) error

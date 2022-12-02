@@ -4,7 +4,10 @@ import (
 	"fmt"
 )
 
-// TODO: Interface should be the name of the interface (string, not a bool)
+// TODO: Interface should be the name of the interface (string, not a bool).
+
+// TODO: Rename BecauseOf to DueTo and find a similar replacements for
+// TODO: Interface & InterfaceOf
 
 // TODO: Create a Session entity that allows sessions to be created where the
 // TODO: ID pool is part of the session. Keep a package instance like 'http'
@@ -14,6 +17,8 @@ import (
 // TODO: - How, where, and when to collect them?
 // TODO: - How to optimise print outs with them?
 // TODO: - May have to redesign the Debug function?
+
+// TODO: Create a proper example with real test data files
 
 // trackable represents an error that uses an integer as an identifier.
 //
@@ -90,6 +95,10 @@ func (e trackable) String() string {
 
 func (e trackable) Unwrap() error {
 	return e.cause
+}
+
+func (e trackable) AsError() error {
+	return e
 }
 
 func (e trackable) Is(target error) bool {
