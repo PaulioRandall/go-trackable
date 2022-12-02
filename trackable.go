@@ -1,17 +1,9 @@
 package trackable
 
-import (
-	"fmt"
-)
-
 // TODO: Interface should be the name of the interface (string, not a bool).
 
 // TODO: Rename BecauseOf to DueTo and find a similar replacements for
 // TODO: Interface & InterfaceOf
-
-// TODO: Create a Session entity that allows sessions to be created where the
-// TODO: ID pool is part of the session. Keep a package instance like 'http'
-// TODO: package does because sessions will be redendant for most programs.
 
 // TODO: Think about how to integrate file names and line numbers.
 // TODO: - How, where, and when to collect them?
@@ -29,56 +21,6 @@ type trackable struct {
 	msg   string
 	cause error
 	iface bool
-}
-
-// Track returns a new trackable error, that is, one with a tracking ID.
-//
-// This function is designed to be called during package initialisation only.
-// This means it should only be used to initialise package global variables,
-// within init functions, or as part of a test.
-func Track(msg string, args ...any) *trackable {
-	return &trackable{
-		id:  newId(),
-		msg: fmt.Sprintf(msg, args...),
-	}
-}
-
-// Interface is the same as Track except the trackable error is flagged as
-// being at the boundary of a key interface.
-func Interface(msg string, args ...any) *trackable {
-	return &trackable{
-		id:    newId(),
-		msg:   fmt.Sprintf(msg, args...),
-		iface: true,
-	}
-}
-
-// Untracked returns a new error without a tracking ID.
-func Untracked(msg string, args ...any) *trackable {
-	return &trackable{
-		msg: fmt.Sprintf(msg, args...),
-	}
-}
-
-// Wrap returns a new error, without a tracking ID, that wraps a cause.
-//
-// It's an alternative to fmt.Errorf where the cause does not have to form part
-// of the error message.
-func Wrap(cause error, msg string, args ...any) *trackable {
-	return &trackable{
-		msg:   fmt.Sprintf(msg, args...),
-		cause: cause,
-	}
-}
-
-// WrapAtInterface is the same as Wrap but flags the but the trackable error is
-// flagged as being at the boundary of a key interface.
-func WrapAtInterface(cause error, msg string, args ...any) *trackable {
-	return &trackable{
-		msg:   fmt.Sprintf(msg, args...),
-		cause: cause,
-		iface: true,
-	}
 }
 
 func (e trackable) Error() string {
