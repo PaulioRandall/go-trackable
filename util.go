@@ -86,7 +86,9 @@ func ErrorStackWith(e error, prefix, delim, ifaceDelim, suffix string) string {
 		}
 
 		s := ErrorWithoutCause(cause)
-		sb.WriteString(s)
+		if s != "" {
+			sb.WriteString(s)
+		}
 
 		if iface := InterfaceName(cause); iface != "" {
 			sb.WriteString(ifaceDelim)

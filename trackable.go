@@ -1,8 +1,5 @@
 package trackable
 
-// TODO: Rename BecauseOf to DueTo and find a similar replacements for
-// TODO: Interface & InterfaceOf
-
 // TODO: Think about how to integrate file names and line numbers.
 // TODO: - How, where, and when to collect them?
 // TODO: - How to optimise print outs with them?

@@ -16,9 +16,8 @@ func NewSession() *session {
 	return &session{}
 }
 
-// newId is the function used to generate trackable error IDs.
-//
-// Only IDs greater than zero are considered trackable.
+// newId is the function used to generate trackable error IDs. Only IDs greater
+// than zero are considered trackable.
 func (s *session) newId() int {
 	s.id++
 	return s.id
@@ -79,12 +78,13 @@ func Wrap(cause error, msg string, args ...any) *trackable {
 	}
 }
 
-// WrapAtInterface is the same as Wrap but the trackable error is
-// given an interface name as to indicate it being at the boundary of a key
-// interface.
-func WrapAtInterface(cause error, name string, msg string, args ...any) *trackable {
+// WrapAtInterface returns a new error, without a trracking ID, that wraps a
+// cause and provides the name of the interface.
+//
+// These errors don't need a message. To add one use the Because receiving
+// function on the returned trackable error.
+func WrapAtInterface(cause error, name string) *trackable {
 	return &trackable{
-		msg:   fmt.Sprintf(msg, args...),
 		cause: cause,
 		iface: name,
 	}
