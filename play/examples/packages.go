@@ -8,7 +8,7 @@ import (
 )
 
 var (
-	ErrExePackage = trackable.Interface("Packages", "Failed to execuate packages")
+	ErrExePackage = trackable.Interface("Packages")
 	ErrDoingThing = trackable.Track("Failed to do a thing")
 	ErrCallingAPI = trackable.Track("API returned an error")
 )

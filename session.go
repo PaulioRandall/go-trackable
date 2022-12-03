@@ -4,6 +4,8 @@ import (
 	"fmt"
 )
 
+// TODO: Create separate struct for interface errors
+
 var global = NewSession()
 
 type session struct {
@@ -35,17 +37,19 @@ func (s *session) Track(msg string, args ...any) *trackable {
 	}
 }
 
-// Interface is the same as Track except the trackable error is given an
-// interface name as to indicate it being at the boundary of a key interface.
-func (s *session) Interface(name string, msg string, args ...any) *trackable {
+// Interface is a trackable error given a name to indicate it being at the
+// boundary of a key interface.
+//
+// Interface errors don't need a message. To add one use the Because receiving
+// function on the returned trackable error.
+func (s *session) Interface(name string) *trackable {
 	return &trackable{
 		id:    s.newId(),
-		msg:   fmt.Sprintf(msg, args...),
 		iface: name,
 	}
 }
 
-// Track returns a new trackable error, that is, one with a tracking ID.
+// Track calls the Track function on the internal global singleton Session.
 //
 // This function is designed to be called during package initialisation only.
 // This means it should only be used to initialise package global variables,
@@ -54,10 +58,17 @@ func Track(msg string, args ...any) *trackable {
 	return global.Track(msg, args...)
 }
 
-// Interface is the same as Track except the trackable error is given an
-// interface name as to indicate it being at the boundary of a key interface.
-func Interface(name string, msg string, args ...any) *trackable {
-	return global.Interface(name, msg, args...)
+// Interface calls the Interface function on the internal global singleton
+// Session.
+//
+// Interface errors don't need a message. To add one use the Because receiving
+// function on the returned trackable error.
+//
+// This function is designed to be called during package initialisation only.
+// This means it should only be used to initialise package global variables,
+// within init functions, or as part of a test.
+func Interface(name string) *trackable {
+	return global.Interface(name)
 }
 
 // Untracked returns a new error without a tracking ID.

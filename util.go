@@ -81,17 +81,19 @@ func ErrorStackWith(e error, prefix, delim, ifaceDelim, suffix string) string {
 	sb.WriteString(prefix)
 
 	for i, cause := range AsStack(e) {
-		if i > 0 {
-			sb.WriteString(delim)
-		}
-
 		s := ErrorWithoutCause(cause)
+
 		if s != "" {
+			if i > 0 {
+				sb.WriteString(delim)
+			}
 			sb.WriteString(s)
 		}
 
 		if iface := InterfaceName(cause); iface != "" {
-			sb.WriteString(ifaceDelim)
+			if i > 0 {
+				sb.WriteString(ifaceDelim)
+			}
 			sb.WriteString(iface)
 		}
 	}
