@@ -99,7 +99,7 @@ type (
 		Checkpoint(cause error, msg string, args ...any) error
 	}
 
-	// CheckpointError represents a key node in an error stack trace.
+	// CheckpointError represents a noteworthy node in an error stack trace.
 	//
 	// The aim is to enable easier reading and debugging of by allowing stack
 	// trace printing to highlight key information for navigating to issues. This
@@ -113,7 +113,7 @@ type (
 	// This interface is primarily for documentation.
 	CheckpointError interface {
 		TrackedError
-		checkpoint()
+		checkpointError()
 	}
 )
 
@@ -156,4 +156,45 @@ func Error(msg string, args ...any) *trackedError {
 // testing.
 func Checkpoint(msg string, args ...any) *checkpointError {
 	panic("TODO api.Checkpoint")
+}
+
+// Debug pretty prints the error stack trace to terminal for debugging
+// purposes.
+//
+// If e is nil then a message will be printed indicating so. While this
+// function can be used for logging it's not design for such a use case.
+func Debug(e error) (int, error) {
+	panic("TODO api.Debug")
+}
+
+// IsTracked returns true if the error is being tracked.
+func IsTracked(e error) bool {
+	panic("TODO api.IsTracked")
+}
+
+// Is is an alias for errors.Is.
+func Is(e, target error) bool {
+	panic("TODO api.Is")
+}
+
+// All returns true only if errors.Is returns true for all targets.
+func All(e error, targets ...error) bool {
+	panic("TODO api.All")
+}
+
+// Any returns true if errors.Is returns true for any of the targets.
+func Any(e error, targets ...error) bool {
+	panic("TODO api.Any")
+}
+
+// ErrorStack returns a human readable stack trace for the error.
+func ErrorStack(e error) string {
+	panic("TODO api.ErrorStack")
+}
+
+// AsStack recursively unwraps the error returning a slice of errors.
+//
+// The passed error will be first and root cause last.
+func AsStack(e error) []error {
+	panic("TODO api.AsStack")
 }
