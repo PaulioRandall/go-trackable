@@ -1,29 +1,8 @@
 package track
 
-type intRealm struct {
-}
-
-type untrackedError struct {
-}
-
-func (e *untrackedError) Unwrap() error {
-	panic("TODO errors.untrackedError.Unwrap")
-}
-
-func (e *untrackedError) Is(error) bool {
-	panic("TODO errors.untrackedError.Is")
-}
-
-func (e *untrackedError) Wrap(error) error {
-	panic("TODO errors.untrackedError.Wrap")
-}
-
-func (e *untrackedError) Copy() error {
-	panic("TODO errors.untrackedError.Copy")
-}
-
 type trackedError struct {
-	untrackedError // TODO: might have to implement some errors specifically
+	*untrackedError // TODO: might have to implement some errors specifically
+	id              int
 }
 
 func (e *trackedError) Because(msg string, args ...any) error {

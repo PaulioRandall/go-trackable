@@ -9,12 +9,6 @@ import (
 
 var ErrReadingCSV = track.Error("Error handling CSV file")
 
-func lineNumber(i int) int {
-	i++ // Convert from index to count
-	i++ // Skip the header
-	return i
-}
-
 func readCSV(filename string) ([][]string, error) {
 	f, e := os.Open(filename)
 	if e != nil {

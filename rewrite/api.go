@@ -11,16 +11,16 @@ package track
 // TODO: - May have to redesign the Debug function?
 
 var (
-	// ErrTodo is a convenience trackable for specifying a TODO.
+	// ErrTodo is a convenience tracked error for specifying a TODO.
 	//
 	// This can be useful if you're taking a stepwise refinement or test driven
 	// approach to writing code.
 	ErrTodo = Error("TODO: Implementation needed")
 
-	// ErrBug is a convenience trackable for use at the site of known bugs.
+	// ErrBug is a convenience tracked error for use at the site of known bugs.
 	ErrBug = Error("BUG: Fix needed")
 
-	// ErrInsane is a convenience trackable for sanity checks.
+	// ErrInsane is a convenience tracked error for sanity checks.
 	ErrInsane = Error("Sanity check failed!!")
 )
 
@@ -117,19 +117,20 @@ type (
 	}
 )
 
-// NewIntRealm returns a new Realm that uses an integer field as a pool of IDs.
+// NewIntRealm returns a new Realm that uses a simple incrementing integer
+// field as the pool of unique IDs.
 //
-// The recommended way to use this package is to ignore this function and use
+// The recommended way to use this package is to ignore this struct and use
 // Error and Checkpoint functions instead. If this package's API is used as
 // intended then it would be impossible to cause an integer overflow scenario
 // in any real world use case. However, Realms were conceived for such an event
-// and for those who really hate the idea of relying on this package's
-// singleton Realm.
+// and for those who really hate the idea of relying on a singleton Realm they
+// have no control over.
 //
-// Integer Realms function as expected incrementing the ID field on each call
-// to intRealm.Error and intRealm.Checkpoint.
+// The incrementation happens on each call to Error and Checkpoint receiving
+// functions.
 func NewIntRealm() *intRealm {
-	panic("TODO api.IntRealm")
+	return &intRealm{}
 }
 
 // Untracked returns a new error without a tracking ID.
@@ -138,7 +139,7 @@ func NewIntRealm() *intRealm {
 // signiture and a few extra receiving functions for any niche use cases one
 // may encounter.
 func Untracked(msg string, args ...any) *untrackedError {
-	panic("TODO api.Untracked")
+	return globalRealm.Untracked(msg, args...)
 }
 
 // Error returns a new tracked error from this package's singleton Realm.
@@ -146,7 +147,7 @@ func Untracked(msg string, args ...any) *untrackedError {
 // This is recommended way to use to create all trackable errors outside of
 // testing.
 func Error(msg string, args ...any) *trackedError {
-	panic("TODO api.Error")
+	return globalRealm.Error(msg, args...)
 }
 
 // Checkpoint returns a new trackable checkpoint error from this package's
@@ -155,7 +156,7 @@ func Error(msg string, args ...any) *trackedError {
 // This is recommended way to use to create all checkpoint errors outside of
 // testing.
 func Checkpoint(msg string, args ...any) *checkpointError {
-	panic("TODO api.Checkpoint")
+	return globalRealm.Checkpoint(msg, args...)
 }
 
 // Debug pretty prints the error stack trace to terminal for debugging
@@ -182,7 +183,7 @@ func All(e error, targets ...error) bool {
 	panic("TODO api.All")
 }
 
-// Any returns true if errors.Is returns true for any of the targets.
+// Any returns true if errors.Is returns true for any target.
 func Any(e error, targets ...error) bool {
 	panic("TODO api.Any")
 }

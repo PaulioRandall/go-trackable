@@ -11,3 +11,9 @@ const (
 func cleanData(data [][]string) ([][]string, error) {
 	panic("clean.cleanData")
 }
+
+func lineNumber(i int) int {
+	i++ // Convert from index to count
+	i++ // Skip the header
+	return i
+}
