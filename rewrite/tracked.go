@@ -17,6 +17,6 @@ func (e *trackedError) Checkpoint(cause error, msg string, args ...any) error {
 	panic("TODO errors.trackedError.Checkpoint")
 }
 
-type checkpointError untrackedError
+type checkpointError trackedError
 
 func (e *checkpointError) checkpoint() {}

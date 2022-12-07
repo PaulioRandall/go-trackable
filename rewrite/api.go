@@ -11,6 +11,8 @@ package track
 // TODO: - May have to redesign the Debug function?
 
 var (
+	globalRealm IntRealm
+
 	// ErrTodo is a convenience tracked error for specifying a TODO.
 	//
 	// This can be useful if you're taking a stepwise refinement or test driven
@@ -117,22 +119,6 @@ type (
 	}
 )
 
-// NewIntRealm returns a new Realm that uses a simple incrementing integer
-// field as the pool of unique IDs.
-//
-// The recommended way to use this package is to ignore this struct and use
-// Error and Checkpoint functions instead. If this package's API is used as
-// intended then it would be impossible to cause an integer overflow scenario
-// in any real world use case. However, Realms were conceived for such an event
-// and for those who really hate the idea of relying on a singleton Realm they
-// have no control over.
-//
-// The incrementation happens on each call to Error and Checkpoint receiving
-// functions.
-func NewIntRealm() *intRealm {
-	return &intRealm{}
-}
-
 // Untracked returns a new error without a tracking ID.
 //
 // It is no different than using errors.New except it has a handy fmt.Sprintf
@@ -168,9 +154,24 @@ func Debug(e error) (int, error) {
 	panic("TODO api.Debug")
 }
 
+// HasTracked returns true if the error or one of the underlying causes are
+// tracked.
+//
+// This includes only errors created via Error and Checkpoint functions.
+func HasTracked(e error) bool {
+	panic("TODO api.HasTracked")
+}
+
 // IsTracked returns true if the error is being tracked.
+//
+// This includes only errors created via Error and Checkpoint functions.
 func IsTracked(e error) bool {
 	panic("TODO api.IsTracked")
+}
+
+// IsCheckpoint returns true if the error is a trackable checkpoint.
+func IsCheckpoint(e error) bool {
+	panic("TODO api.IsCheckpoint")
 }
 
 // Is is an alias for errors.Is.
