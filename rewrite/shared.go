@@ -21,9 +21,10 @@ func becauseOf(cause error, msg string, args ...any) *untrackedError {
 	}
 }
 
-func checkpoint(cause error, msg string, args ...any) *checkpointError {
-	return &checkpointError{
-		msg:   fmtMsg(msg, args...),
-		cause: cause,
+func checkpoint(cause error, msg string, args ...any) *trackedError {
+	return &trackedError{
+		isCheckpoint: true,
+		msg:          fmtMsg(msg, args...),
+		cause:        cause,
 	}
 }

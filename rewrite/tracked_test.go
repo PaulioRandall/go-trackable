@@ -117,9 +117,10 @@ func Test_trackedError_Checkpoint_1(t *testing.T) {
 	exp := &trackedError{
 		id:  given.id,
 		msg: given.msg,
-		cause: &checkpointError{
-			msg:   "123",
-			cause: rootCause,
+		cause: &trackedError{
+			isCheckpoint: true,
+			msg:          "123",
+			cause:        rootCause,
 		},
 	}
 

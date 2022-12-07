@@ -1,4 +1,4 @@
-package example
+package read
 
 import (
 	"encoding/csv"
@@ -7,9 +7,20 @@ import (
 	"github.com/PaulioRandall/trackable/rewrite"
 )
 
-var ErrReadingCSV = track.Error("Error handling CSV file")
+var (
+	ErrReadPkg    = track.Checkpoint("play/example/read package")
+	ErrReadingCSV = track.Error("Error handling CSV file")
+)
 
-func readCSV(filename string) ([][]string, error) {
+func CSV(filename string) ([][]string, error) {
+	data, e := openAndReadCSV(filename)
+	if e != nil {
+		return nil, ErrReadPkg.Wrap(e)
+	}
+	return data, nil
+}
+
+func openAndReadCSV(filename string) ([][]string, error) {
 	f, e := os.Open(filename)
 	if e != nil {
 		return nil, ErrReadingCSV.BecauseOf(e, "File could not be opened %q", filename)

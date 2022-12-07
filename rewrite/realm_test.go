@@ -50,10 +50,11 @@ func Test_IntRealm_Checkpoint_1(t *testing.T) {
 	r := IntRealm{}
 
 	act := r.Checkpoint("abc%d%d%d", 1, 2, 3)
-	exp := &checkpointError{
-		id:    1,
-		msg:   "abc123",
-		cause: nil,
+	exp := &trackedError{
+		id:           1,
+		isCheckpoint: true,
+		msg:          "abc123",
+		cause:        nil,
 	}
 
 	require.Equal(t, exp, act)

@@ -2,6 +2,12 @@
 // elegant stack traces.
 package track
 
+import (
+	"errors"
+	"fmt"
+	"strings"
+)
+
 // TODO 1: Write up a realistic example for this interface using test data
 // TODO 2: Implement package interface
 
@@ -68,7 +74,7 @@ func Error(msg string, args ...any) *trackedError {
 //
 // This is recommended way to use to create all checkpoint errors outside of
 // testing.
-func Checkpoint(msg string, args ...any) *checkpointError {
+func Checkpoint(msg string, args ...any) *trackedError {
 	return globalRealm.Checkpoint(msg, args...)
 }
 
@@ -78,7 +84,13 @@ func Checkpoint(msg string, args ...any) *checkpointError {
 // If e is nil then a message will be printed indicating so. While this
 // function can be used for logging it's not design for such a use case.
 func Debug(e error) (int, error) {
-	panic("TODO api.Debug")
+	s := ErrorStack(e)
+
+	if s == "" {
+		return fmt.Print("[Debugging error] nil error")
+	}
+
+	return fmt.Print("[Debugging error]\n", s)
 }
 
 // HasTracked returns true if the error or one of the underlying causes are
@@ -98,12 +110,15 @@ func IsTracked(e error) bool {
 
 // IsCheckpoint returns true if the error is a trackable checkpoint.
 func IsCheckpoint(e error) bool {
-	panic("TODO api.IsCheckpoint")
+	if te, ok := e.(*trackedError); ok {
+		return te.IsCheckpoint()
+	}
+	return false
 }
 
 // Is is an alias for errors.Is.
 func Is(e, target error) bool {
-	panic("TODO api.Is")
+	return errors.Is(e, target)
 }
 
 // All returns true only if errors.Is returns true for all targets.
@@ -118,12 +133,71 @@ func Any(e error, targets ...error) bool {
 
 // ErrorStack returns a human readable stack trace for the error.
 func ErrorStack(e error) string {
-	panic("TODO api.ErrorStack")
+	sb := strings.Builder{}
+	sb.WriteString("  ")
+
+	for i, cause := range AsStack(e) {
+
+		var prefix, suffix string
+		if IsCheckpoint(cause) {
+			prefix = "\n——"
+			suffix = "——"
+		} else {
+			prefix = "\n⤷ "
+		}
+
+		if i > 0 {
+			sb.WriteString(prefix)
+		}
+
+		sb.WriteString(cause.Error())
+
+		if i > 0 {
+			sb.WriteString(suffix)
+		}
+	}
+
+	sb.WriteString("\n")
+	return sb.String()
 }
 
 // AsStack recursively unwraps the error returning a slice of errors.
 //
 // The passed error will be first and root cause last.
 func AsStack(e error) []error {
-	panic("TODO api.AsStack")
+	var stack []error
+
+	for e != nil {
+		stack = append(stack, e)
+		e = errors.Unwrap(e)
+	}
+
+	return stack
+}
+
+// ErrorWithoutCause removes the cause from error messages that use the
+// standard concaternation.
+//
+// The standard concaternation being in the format '%s: %w' where s is the
+// error message and w is the cause's message.
+func ErrorWithoutCause(e error) string {
+	s := e.Error()
+
+	if _, ok := e.(*untrackedError); ok {
+		return s
+	}
+
+	if _, ok := e.(*trackedError); ok {
+		return s
+	}
+
+	cause := errors.Unwrap(e)
+
+	if cause == nil {
+		return s
+	}
+
+	s = strings.TrimSuffix(s, cause.Error())
+	s = strings.TrimSpace(s)
+	return strings.TrimSuffix(s, ":")
 }

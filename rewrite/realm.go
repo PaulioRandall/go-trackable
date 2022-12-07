@@ -1,5 +1,7 @@
 package track
 
+// TODO: Rename Realm.Error to Realm.Track
+
 // Realm represents a space where each trackable error (stack trace node)
 // has its own unique ID.
 //
@@ -26,7 +28,7 @@ type Realm interface {
 
 	// Checkpoint returns a new tracked checkpoint error, that is, one with a
 	// tracking ID and indicates a key node within a stack trace.
-	Checkpoint(msg string, args ...any) *checkpointError
+	Checkpoint(msg string, args ...any) *trackedError
 }
 
 // IntRealm is a Realm that uses a simple incrementing integer field as the
@@ -60,10 +62,11 @@ func (r *IntRealm) Error(msg string, args ...any) *trackedError {
 
 // Checkpoint returns a new trackable checkpoint error from this package's
 // singleton Realm.
-func (r *IntRealm) Checkpoint(msg string, args ...any) *checkpointError {
-	return &checkpointError{
-		id:  r.newID(),
-		msg: fmtMsg(msg, args...),
+func (r *IntRealm) Checkpoint(msg string, args ...any) *trackedError {
+	return &trackedError{
+		id:           r.newID(),
+		isCheckpoint: true,
+		msg:          fmtMsg(msg, args...),
 	}
 }
 
