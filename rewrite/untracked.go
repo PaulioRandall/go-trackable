@@ -4,7 +4,20 @@ package track
 //
 // This interface is primarily for documentation.
 type UntrackedError interface {
-	ErrorWrap
+	error
+
+	// Unwrap returns the error's underlying cause or nil if none exists.
+	//
+	// It is designed to work with the Is function exposed by the standard
+	// errors package.
+	Unwrap() error
+
+	// Wrap returns a copy of the receiving error with the passed error as the
+	// underlying cause.
+	Wrap(error) error
+
+	// Copy returns a shallow copy of the error.
+	Copy() error
 
 	// Because returns a copy of the receiving error constructing a cause from
 	// msg and args.

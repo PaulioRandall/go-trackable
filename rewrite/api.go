@@ -28,29 +28,9 @@ var (
 	// ErrBug is a convenience tracked error for use at the site of known bugs.
 	ErrBug = Error("BUG: Fix needed")
 
-	// ErrInsane is a convenience tracked error for sanity checks.
-	ErrInsane = Error("Sanity check failed!!")
+	// ErrInsane is a convenience tracked error for sanity checking.
+	ErrInsane = Error("Sanity check!!")
 )
-
-// ErrorWrap represents an error that may or may not have a cause.
-//
-// This interface is primarily for documentation.
-type ErrorWrap interface {
-	error
-
-	// Unwrap returns the error's underlying cause or nil if none exists.
-	//
-	// It is designed to work with the Is function exposed by the standard
-	// errors package.
-	Unwrap() error
-
-	// Wrap returns a copy of the receiving error with the passed error as the
-	// underlying cause.
-	Wrap(error) error
-
-	// Copy returns a shallow copy of the error.
-	Copy() error
-}
 
 // Untracked returns a new error without a tracking ID.
 //
@@ -82,7 +62,7 @@ func Checkpoint(msg string, args ...any) *trackedError {
 // purposes.
 //
 // If e is nil then a message will be printed indicating so. While this
-// function can be used for logging it's not design for such a use case.
+// function can be used for logging it's not designed for it.
 func Debug(e error) (int, error) {
 	s := ErrorStack(e)
 
@@ -94,16 +74,13 @@ func Debug(e error) (int, error) {
 }
 
 // HasTracked returns true if the error or one of the underlying causes are
-// tracked.
-//
-// This includes only errors created via Error and Checkpoint functions.
+// tracked, i.e. those created via the Error and Checkpoint functions.
 func HasTracked(e error) bool {
 	panic("TODO api.HasTracked")
 }
 
-// IsTracked returns true if the error is being tracked.
-//
-// This includes only errors created via Error and Checkpoint functions.
+// IsTracked returns true if the error is being tracked, i.e. those created via
+// the Error and Checkpoint functions.
 func IsTracked(e error) bool {
 	panic("TODO api.IsTracked")
 }
@@ -150,7 +127,8 @@ func ErrorStack(e error) string {
 			sb.WriteString(prefix)
 		}
 
-		sb.WriteString(cause.Error())
+		s := ErrorWithoutCause(cause)
+		sb.WriteString(s)
 
 		if i > 0 {
 			sb.WriteString(suffix)
@@ -163,7 +141,7 @@ func ErrorStack(e error) string {
 
 // AsStack recursively unwraps the error returning a slice of errors.
 //
-// The passed error will be first and root cause last.
+// The passed error e will be first and root cause last.
 func AsStack(e error) []error {
 	var stack []error
 
@@ -175,11 +153,8 @@ func AsStack(e error) []error {
 	return stack
 }
 
-// ErrorWithoutCause removes the cause from error messages that use the
-// standard concaternation.
-//
-// The standard concaternation being in the format '%s: %w' where s is the
-// error message and w is the cause's message.
+// ErrorWithoutCause removes the cause from error messages that use the format
+// '%s: %w'. Where s is the error message and w is the cause's message.
 func ErrorWithoutCause(e error) string {
 	s := e.Error()
 
