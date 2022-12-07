@@ -1,5 +1,34 @@
 package track
 
+// Realm represents a space where each trackable error (stack trace node)
+// has its own unique ID.
+//
+// This is primarily for testing and avoids ID pool stack overflow even
+// though such a scenario is almost impossible if the API is used correctly.
+//
+// There is an internal package level Realm that will suffice for most
+// purposes. It is used via the package level Error and Checkpoint functions.
+//
+// The receiving functions are designed to be called during package
+// initialisation. This means it should only be used to initialise package
+// global variables and within init functions. The exception is where
+// multiple Realms are in use. Testing is the only use case currently
+// conceivable.
+//
+// Furthermore, all functions return a shallow copy of any passed or
+// receiving errors creating a somewhat immutability based ecosystem.
+//
+// This interface is primarily for documentation.
+type Realm interface {
+
+	// Error returns a new tracked error, that is, one with a tracking ID.
+	Error(msg string, args ...any) *trackedError
+
+	// Checkpoint returns a new tracked checkpoint error, that is, one with a
+	// tracking ID and indicates a key node within a stack trace.
+	Checkpoint(msg string, args ...any) *checkpointError
+}
+
 // IntRealm is a Realm that uses a simple incrementing integer field as the
 // pool of unique IDs.
 //
@@ -18,9 +47,7 @@ type IntRealm struct {
 
 // Untracked returns a new error without a tracking ID.
 func (r *IntRealm) Untracked(msg string, args ...any) *untrackedError {
-	return &untrackedError{
-		msg: fmtMsg(msg, args...),
-	}
+	return because(msg, args...)
 }
 
 // Error returns a new tracked error from this package's singleton Realm.

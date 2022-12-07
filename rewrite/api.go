@@ -26,105 +26,25 @@ var (
 	ErrInsane = Error("Sanity check failed!!")
 )
 
-type (
-	// Realm represents a space where each trackable error (stack trace node)
-	// has its own unique ID.
+// ErrorWrap represents an error that may or may not have a cause.
+//
+// This interface is primarily for documentation.
+type ErrorWrap interface {
+	error
+
+	// Unwrap returns the error's underlying cause or nil if none exists.
 	//
-	// This is primarily for testing and avoids ID pool stack overflow even
-	// though such a scenario is almost impossible if the API is used correctly.
-	//
-	// There is an internal package level Realm that will suffice for most
-	// purposes. It is used via the package level Error and Checkpoint functions.
-	//
-	// The receiving functions are designed to be called during package
-	// initialisation. This means it should only be used to initialise package
-	// global variables and within init functions. The exception is where
-	// multiple Realms are in use. Testing is the only use case currently
-	// conceivable.
-	//
-	// This interface is primarily for documentation.
-	Realm interface {
+	// It is designed to work with the Is function exposed by the standard
+	// errors package.
+	Unwrap() error
 
-		// Error returns a new tracked error, that is, one with a tracking ID.
-		Error(msg string, args ...any) *trackedError
+	// Wrap returns a copy of the receiving error with the passed error as the
+	// underlying cause.
+	Wrap(error) error
 
-		// Checkpoint returns a new tracked checkpoint error, that is, one with a
-		// tracking ID and indicates a key node within a stack trace.
-		Checkpoint(msg string, args ...any) *checkpointError
-	}
-
-	// ErrorWrap represents an error that may or may not have a cause.
-	//
-	// This interface is primarily for documentation.
-	ErrorWrap interface {
-		error
-
-		// Unwrap returns the error's underlying cause or nil if none exists.
-		//
-		// It is designed to work with the Is function exposed by the standard
-		// errors package.
-		Unwrap() error
-
-		// Wrap returns a copy of the receiving error with the passed error as the
-		// underlying cause.
-		Wrap(error) error
-
-		// Copy returns a shallow copy of the error.
-		Copy() error
-	}
-
-	// UntrackedError represents an untrackable node in an error stack trace.
-	//
-	// This interface is primarily for documentation.
-	UntrackedError interface {
-		ErrorWrap
-
-		// Because returns a copy of the receiving error constructing a cause from
-		// msg and args.
-		Because(msg string, args ...any) error
-
-		// Because returns a copy of the receiving error constructing a cause by
-		// wrapping the passed cause with the error msg and args.
-		BecauseOf(cause error, msg string, args ...any) error
-
-		// Checkpoint returns a copy of the receiving error with a checkpoint
-		// error as an intermediate cause.
-		//
-		// The msg and args are for the intermediate CheckpointError's message.
-		Checkpoint(cause error, msg string, args ...any) error
-	}
-
-	// TrackedError represents a trackable node in an error stack trace.
-	//
-	// This interface is primarily for documentation.
-	TrackedError interface {
-		UntrackedError
-
-		// Is returns true if the passed error is equivalent to the receiving
-		// error.
-		//
-		// This is a shallow comparison so causes are not checked. It is designed
-		// to work with the Is function exposed by the standard errors package.
-		Is(error) bool
-	}
-
-	// CheckpointError represents a noteworthy node in an error stack trace.
-	//
-	// The aim is to enable easier reading and debugging of by allowing stack
-	// trace printing to highlight key information for navigating to issues. This
-	// allows stack traces to be partitioned so they are more meaningful,
-	// readable, and navigable.
-	//
-	// The primary intended purpose is to note interfaces in stack traces, that
-	// is, denote the key boundary between packages, libraries, systems, and
-	// other key integration points.
-	//
-	// This interface is primarily for documentation.
-	CheckpointError interface {
-		TrackedError
-		checkpointError()
-	}
-)
+	// Copy returns a shallow copy of the error.
+	Copy() error
+}
 
 // Untracked returns a new error without a tracking ID.
 //

@@ -1,5 +1,39 @@
 package track
 
+type (
+
+	// TrackedError represents a trackable node in an error stack trace.
+	//
+	// This interface is primarily for documentation.
+	TrackedError interface {
+		UntrackedError
+
+		// Is returns true if the passed error is equivalent to the receiving
+		// error.
+		//
+		// This is a shallow comparison so causes are not checked. It is designed
+		// to work with the Is function exposed by the standard errors package.
+		Is(error) bool
+	}
+
+	// CheckpointError represents a noteworthy node in an error stack trace.
+	//
+	// The aim is to enable easier reading and debugging of by allowing stack
+	// trace printing to highlight key information for navigating to issues. This
+	// allows stack traces to be partitioned so they are more meaningful,
+	// readable, and navigable.
+	//
+	// The primary intended purpose is to note interfaces in stack traces, that
+	// is, denote the key boundary between packages, libraries, systems, and
+	// other key integration points.
+	//
+	// This interface is primarily for documentation.
+	CheckpointError interface {
+		TrackedError
+		checkpointError()
+	}
+)
+
 type trackedError struct {
 	id    int
 	msg   string
@@ -31,25 +65,17 @@ func (e trackedError) Is(other error) bool {
 }
 
 func (e trackedError) Because(msg string, args ...any) error {
-	e.cause = &untrackedError{
-		msg: fmtMsg(msg, args...),
-	}
+	e.cause = because(msg, args...)
 	return &e
 }
 
 func (e trackedError) BecauseOf(cause error, msg string, args ...any) error {
-	e.cause = &untrackedError{
-		msg:   fmtMsg(msg, args...),
-		cause: cause,
-	}
+	e.cause = becauseOf(cause, msg, args...)
 	return &e
 }
 
 func (e trackedError) Checkpoint(cause error, msg string, args ...any) error {
-	e.cause = &checkpointError{
-		msg:   fmtMsg(msg, args...),
-		cause: cause,
-	}
+	e.cause = checkpoint(cause, msg, args...)
 	return &e
 }
 
