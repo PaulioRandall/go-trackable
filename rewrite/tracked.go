@@ -1,9 +1,5 @@
 package track
 
-import (
-	"fmt"
-)
-
 type trackedError struct {
 	id    int
 	msg   string
@@ -36,14 +32,14 @@ func (e trackedError) Is(other error) bool {
 
 func (e trackedError) Because(msg string, args ...any) error {
 	e.cause = &untrackedError{
-		msg: fmt.Sprintf(msg, args...),
+		msg: fmtMsg(msg, args...),
 	}
 	return &e
 }
 
 func (e trackedError) BecauseOf(cause error, msg string, args ...any) error {
 	e.cause = &untrackedError{
-		msg:   fmt.Sprintf(msg, args...),
+		msg:   fmtMsg(msg, args...),
 		cause: cause,
 	}
 	return &e
@@ -51,7 +47,7 @@ func (e trackedError) BecauseOf(cause error, msg string, args ...any) error {
 
 func (e trackedError) Checkpoint(cause error, msg string, args ...any) error {
 	e.cause = &checkpointError{
-		msg:   fmt.Sprintf(msg, args...),
+		msg:   fmtMsg(msg, args...),
 		cause: cause,
 	}
 	return &e

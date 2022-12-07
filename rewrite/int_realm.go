@@ -1,9 +1,5 @@
 package track
 
-import (
-	"fmt"
-)
-
 // IntRealm is a Realm that uses a simple incrementing integer field as the
 // pool of unique IDs.
 //
@@ -23,7 +19,7 @@ type IntRealm struct {
 // Untracked returns a new error without a tracking ID.
 func (r *IntRealm) Untracked(msg string, args ...any) *untrackedError {
 	return &untrackedError{
-		msg: fmt.Sprintf(msg, args...),
+		msg: fmtMsg(msg, args...),
 	}
 }
 
@@ -31,7 +27,7 @@ func (r *IntRealm) Untracked(msg string, args ...any) *untrackedError {
 func (r *IntRealm) Error(msg string, args ...any) *trackedError {
 	return &trackedError{
 		id:  r.newID(),
-		msg: fmt.Sprintf(msg, args...),
+		msg: fmtMsg(msg, args...),
 	}
 }
 
@@ -40,7 +36,7 @@ func (r *IntRealm) Error(msg string, args ...any) *trackedError {
 func (r *IntRealm) Checkpoint(msg string, args ...any) *checkpointError {
 	return &checkpointError{
 		id:  r.newID(),
-		msg: fmt.Sprintf(msg, args...),
+		msg: fmtMsg(msg, args...),
 	}
 }
 
