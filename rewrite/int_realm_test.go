@@ -1,7 +1,6 @@
 package track
 
 import (
-	//"errors"
 	"testing"
 
 	"github.com/stretchr/testify/require"
@@ -10,9 +9,9 @@ import (
 func Test_IntRealm_untracked_1(t *testing.T) {
 	r := IntRealm{}
 
-	act := r.Untracked("Abc%d%d%d", 1, 2, 3)
+	act := r.Untracked("abc%d%d%d", 1, 2, 3)
 	exp := &untrackedError{
-		msg:   "Abc123",
+		msg:   "abc123",
 		cause: nil,
 	}
 
@@ -22,13 +21,11 @@ func Test_IntRealm_untracked_1(t *testing.T) {
 func Test_IntRealm_Error_1(t *testing.T) {
 	r := IntRealm{}
 
-	act := r.Error("Abc%d%d%d", 1, 2, 3)
+	act := r.Error("abc%d%d%d", 1, 2, 3)
 	exp := &trackedError{
-		untrackedError: &untrackedError{
-			msg:   "Abc123",
-			cause: nil,
-		},
-		id: 1,
+		id:    1,
+		msg:   "abc123",
+		cause: nil,
 	}
 
 	require.Equal(t, exp, act)
@@ -37,15 +34,13 @@ func Test_IntRealm_Error_1(t *testing.T) {
 func Test_IntRealm_Error_2(t *testing.T) {
 	r := IntRealm{}
 
-	_ = r.Error("Abc%d%d%d", 1, 2, 3)
-	act := r.Error("Efg%d%d%d", 4, 5, 6)
+	_ = r.Error("abc%d%d%d", 1, 2, 3)
+	act := r.Error("efg%d%d%d", 4, 5, 6)
 
 	exp := &trackedError{
-		untrackedError: &untrackedError{
-			msg:   "Efg456",
-			cause: nil,
-		},
-		id: 2,
+		id:    2,
+		msg:   "efg456",
+		cause: nil,
 	}
 
 	require.Equal(t, exp, act)
@@ -54,13 +49,11 @@ func Test_IntRealm_Error_2(t *testing.T) {
 func Test_IntRealm_Checkpoint_1(t *testing.T) {
 	r := IntRealm{}
 
-	act := r.Checkpoint("Abc%d%d%d", 1, 2, 3)
+	act := r.Checkpoint("abc%d%d%d", 1, 2, 3)
 	exp := &checkpointError{
-		untrackedError: &untrackedError{
-			msg:   "Abc123",
-			cause: nil,
-		},
-		id: 1,
+		id:    1,
+		msg:   "abc123",
+		cause: nil,
 	}
 
 	require.Equal(t, exp, act)

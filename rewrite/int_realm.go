@@ -30,8 +30,8 @@ func (r *IntRealm) Untracked(msg string, args ...any) *untrackedError {
 // Error returns a new tracked error from this package's singleton Realm.
 func (r *IntRealm) Error(msg string, args ...any) *trackedError {
 	return &trackedError{
-		untrackedError: Untracked(msg, args...),
-		id:             r.newID(),
+		id:  r.newID(),
+		msg: fmt.Sprintf(msg, args...),
 	}
 }
 
@@ -39,8 +39,8 @@ func (r *IntRealm) Error(msg string, args ...any) *trackedError {
 // singleton Realm.
 func (r *IntRealm) Checkpoint(msg string, args ...any) *checkpointError {
 	return &checkpointError{
-		untrackedError: Untracked(msg, args...),
-		id:             r.newID(),
+		id:  r.newID(),
+		msg: fmt.Sprintf(msg, args...),
 	}
 }
 

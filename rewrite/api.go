@@ -53,24 +53,17 @@ type (
 		Checkpoint(msg string, args ...any) *checkpointError
 	}
 
-	// UntrackedError represents an extended Go error with function signatures
-	// mentioned within the errors package.
+	// ErrorWrap represents an error that may or may not have a cause.
 	//
 	// This interface is primarily for documentation.
-	UntrackedError interface {
+	ErrorWrap interface {
+		error
 
 		// Unwrap returns the error's underlying cause or nil if none exists.
 		//
 		// It is designed to work with the Is function exposed by the standard
 		// errors package.
 		Unwrap() error
-
-		// Is returns true if the passed error is equivalent to the receiving
-		// error.
-		//
-		// This is a shallow comparison so causes are not checked. It is designed
-		// to work with the Is function exposed by the standard errors package.
-		Is(error) bool
 
 		// Wrap returns a copy of the receiving error with the passed error as the
 		// underlying cause.
@@ -80,11 +73,11 @@ type (
 		Copy() error
 	}
 
-	// TrackedError represents a trackable node in an error stack trace.
+	// UntrackedError represents an untrackable node in an error stack trace.
 	//
 	// This interface is primarily for documentation.
-	TrackedError interface {
-		UntrackedError
+	UntrackedError interface {
+		ErrorWrap
 
 		// Because returns a copy of the receiving error constructing a cause from
 		// msg and args.
@@ -97,8 +90,22 @@ type (
 		// Checkpoint returns a copy of the receiving error with a checkpoint
 		// error as an intermediate cause.
 		//
-		// The msg and args are for the CheckpointError's message.
+		// The msg and args are for the intermediate CheckpointError's message.
 		Checkpoint(cause error, msg string, args ...any) error
+	}
+
+	// TrackedError represents a trackable node in an error stack trace.
+	//
+	// This interface is primarily for documentation.
+	TrackedError interface {
+		UntrackedError
+
+		// Is returns true if the passed error is equivalent to the receiving
+		// error.
+		//
+		// This is a shallow comparison so causes are not checked. It is designed
+		// to work with the Is function exposed by the standard errors package.
+		Is(error) bool
 	}
 
 	// CheckpointError represents a noteworthy node in an error stack trace.
