@@ -1,7 +1,5 @@
 package track
 
-// TODO: Rename Realm.Error to Realm.Track
-
 // Realm represents a space where each trackable error (stack trace node)
 // has its own unique ID.
 //
@@ -23,8 +21,8 @@ package track
 // This interface is primarily for documentation.
 type Realm interface {
 
-	// Error returns a new tracked error, that is, one with a tracking ID.
-	Error(msg string, args ...any) *trackedError
+	// Track returns a new tracked error, that is, one with a tracking ID.
+	Track(msg string, args ...any) *trackedError
 
 	// Checkpoint returns a new tracked checkpoint error, that is, one with a
 	// tracking ID and indicates a key node within a stack trace.
@@ -41,7 +39,7 @@ type Realm interface {
 // an event and for those who really hate the idea of relying on a singleton
 // Realm they have no control over.
 //
-// The incrementation happens on each call to Error and Checkpoint receiving
+// The incrementation happens on each call to Track and Checkpoint receiving
 // functions.
 type IntRealm struct {
 	idPool *int
@@ -52,8 +50,8 @@ func (r *IntRealm) Untracked(msg string, args ...any) *untrackedError {
 	return because(msg, args...)
 }
 
-// Error returns a new tracked error from this package's singleton Realm.
-func (r *IntRealm) Error(msg string, args ...any) *trackedError {
+// Track returns a new tracked error from this package's singleton Realm.
+func (r *IntRealm) Track(msg string, args ...any) *trackedError {
 	return &trackedError{
 		id:  r.newID(),
 		msg: fmtMsg(msg, args...),

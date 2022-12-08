@@ -1,6 +1,5 @@
 package track
 
-// TODO: Rename trackedError.BecauseOf as trackedError.CausedBy
 // TODO: Add trackedError.BecauseOf that allows a trackedError to be nested
 
 // TrackedError represents a trackable node in an error stack trace.
@@ -59,8 +58,8 @@ func (e trackedError) Because(msg string, args ...any) error {
 	return &e
 }
 
-func (e trackedError) BecauseOf(cause error, msg string, args ...any) error {
-	e.cause = becauseOf(cause, msg, args...)
+func (e trackedError) CausedBy(cause error, msg string, args ...any) error {
+	e.cause = causedBy(cause, msg, args...)
 	return &e
 }
 

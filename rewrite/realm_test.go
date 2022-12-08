@@ -6,6 +6,10 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
+func Test_IntRealm_types(t *testing.T) {
+	var _ Realm = &IntRealm{}
+}
+
 func Test_IntRealm_untracked_1(t *testing.T) {
 	r := IntRealm{}
 
@@ -21,7 +25,7 @@ func Test_IntRealm_untracked_1(t *testing.T) {
 func Test_IntRealm_Error_1(t *testing.T) {
 	r := IntRealm{}
 
-	act := r.Error("abc%d%d%d", 1, 2, 3)
+	act := r.Track("abc%d%d%d", 1, 2, 3)
 	exp := &trackedError{
 		id:    1,
 		msg:   "abc123",
@@ -34,8 +38,8 @@ func Test_IntRealm_Error_1(t *testing.T) {
 func Test_IntRealm_Error_2(t *testing.T) {
 	r := IntRealm{}
 
-	_ = r.Error("abc%d%d%d", 1, 2, 3)
-	act := r.Error("efg%d%d%d", 4, 5, 6)
+	_ = r.Track("abc%d%d%d", 1, 2, 3)
+	act := r.Track("efg%d%d%d", 4, 5, 6)
 
 	exp := &trackedError{
 		id:    2,

@@ -23,9 +23,9 @@ type UntrackedError interface {
 	// msg and args.
 	Because(msg string, args ...any) error
 
-	// Because returns a copy of the receiving error constructing a cause by
+	// CausedBy returns a copy of the receiving error constructing a cause by
 	// wrapping the passed cause with the error msg and args.
-	BecauseOf(cause error, msg string, args ...any) error
+	CausedBy(cause error, msg string, args ...any) error
 
 	// Checkpoint returns a copy of the receiving error with a checkpoint
 	// error as an intermediate cause.
@@ -61,8 +61,8 @@ func (e untrackedError) Because(msg string, args ...any) error {
 	return &e
 }
 
-func (e untrackedError) BecauseOf(cause error, msg string, args ...any) error {
-	e.cause = becauseOf(cause, msg, args...)
+func (e untrackedError) CausedBy(cause error, msg string, args ...any) error {
+	e.cause = causedBy(cause, msg, args...)
 	return &e
 }
 

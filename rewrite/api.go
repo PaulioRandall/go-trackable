@@ -46,7 +46,7 @@ func Untracked(msg string, args ...any) *untrackedError {
 // This is recommended way to use to create all trackable errors outside of
 // testing.
 func Error(msg string, args ...any) *trackedError {
-	return globalRealm.Error(msg, args...)
+	return globalRealm.Track(msg, args...)
 }
 
 // Checkpoint returns a new trackable checkpoint error from this package's

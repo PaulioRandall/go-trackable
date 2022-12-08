@@ -7,6 +7,10 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
+func Test_trackedError_type(t *testing.T) {
+	var _ TrackedError = trackedError{}
+}
+
 func Test_trackedError_Is_1(t *testing.T) {
 	a := &trackedError{
 		id:    1,
@@ -89,7 +93,7 @@ func Test_trackedError_BecauseOf_1(t *testing.T) {
 		cause: nil,
 	}
 
-	act := given.BecauseOf(rootCause, "%d%d%d", 1, 2, 3)
+	act := given.CausedBy(rootCause, "%d%d%d", 1, 2, 3)
 
 	exp := &trackedError{
 		id:  given.id,

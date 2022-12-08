@@ -23,7 +23,7 @@ func CSV(filename string) ([][]string, error) {
 func openAndReadCSV(filename string) ([][]string, error) {
 	f, e := os.Open(filename)
 	if e != nil {
-		return nil, ErrReadingCSV.BecauseOf(e, "File could not be opened %q", filename)
+		return nil, ErrReadingCSV.CausedBy(e, "File could not be opened %q", filename)
 	}
 	defer f.Close()
 
@@ -32,7 +32,7 @@ func openAndReadCSV(filename string) ([][]string, error) {
 	records = records[1:] // Remove header
 
 	if e != nil {
-		return nil, ErrReadingCSV.BecauseOf(e, "File could not be read %q", filename)
+		return nil, ErrReadingCSV.CausedBy(e, "File could not be read %q", filename)
 	}
 
 	return records, nil

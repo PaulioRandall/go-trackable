@@ -10,11 +10,11 @@ import (
 func Test_ErrorStack_1(t *testing.T) {
 	r := IntRealm{}
 
-	te := r.Error("abc")
+	te := r.Track("abc")
 	cp := r.Checkpoint("hij")
 
 	given := cp.Because("klm")
-	given = te.BecauseOf(given, "efg")
+	given = te.CausedBy(given, "efg")
 
 	act := ErrorStack(given)
 

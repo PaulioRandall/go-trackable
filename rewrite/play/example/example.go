@@ -33,7 +33,7 @@ func executeWorkflow(filename string) error {
 	}
 
 	if e = printData(data); e != nil {
-		return ErrExeWorkflow.BecauseOf(e, "Failed to print out data")
+		return ErrExeWorkflow.CausedBy(e, "Failed to print out data")
 	}
 
 	return nil

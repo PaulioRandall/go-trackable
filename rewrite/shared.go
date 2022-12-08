@@ -14,7 +14,7 @@ func because(msg string, args ...any) *untrackedError {
 	}
 }
 
-func becauseOf(cause error, msg string, args ...any) *untrackedError {
+func causedBy(cause error, msg string, args ...any) *untrackedError {
 	return &untrackedError{
 		msg:   fmtMsg(msg, args...),
 		cause: cause,
