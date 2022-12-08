@@ -10,8 +10,11 @@ import (
 
 var ErrExeWorkflow = track.Error("Executing workflow failed")
 
-// Run provides example usage of go-track. Try breaking some of the parameters
-// and logic to see the error stack traces that get produced.
+// Run provides example usage of go-track.
+//
+// Try breaking some of the parameters and logic to see the error stack traces
+// that get produced. Also try dirtying the data in various ways to see what
+// errors the clean and format package produce.
 //
 // It's verbose in terms of errors on purpose to show off the various features.
 // In reality you only want to put in the error handling you need.
