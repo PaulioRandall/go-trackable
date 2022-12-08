@@ -15,6 +15,12 @@ var ErrExeWorkflow = track.Error("Executing workflow failed")
 // It's verbose in terms of errors on purpose to show off the various features.
 // In reality you only want to put in the error handling you need.
 func Run() {
+	defer func() {
+		if v := recover(); v != nil {
+			track.Debug(v.(error))
+		}
+	}()
+
 	e := executeWorkflow("rewrite/play/example/data/acid-rain.csv")
 	if e != nil {
 		track.Debug(e)
@@ -27,8 +33,7 @@ func executeWorkflow(filename string) error {
 		return ErrExeWorkflow.Wrap(e)
 	}
 
-	data, e = clean.CSV(data)
-	if e != nil {
+	if e = clean.CSV(data); e != nil {
 		return ErrExeWorkflow.Wrap(e)
 	}
 

@@ -8,9 +8,6 @@ import (
 	"strings"
 )
 
-// TODO 1: Write up a realistic example for this interface using test data
-// TODO 2: Implement package interface
-
 // TODO: Think about how to integrate file names and line numbers.
 // TODO: - How, where, and when to collect them?
 // TODO: - How to optimise print outs with them?
