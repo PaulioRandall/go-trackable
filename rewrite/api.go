@@ -76,13 +76,31 @@ func Debug(e error) (int, error) {
 // HasTracked returns true if the error or one of the underlying causes are
 // tracked, i.e. those created via the Error and Checkpoint functions.
 func HasTracked(e error) bool {
-	panic("TODO api.HasTracked")
+
+	type wrapper interface {
+		Unwrap() error
+	}
+
+	for e != nil {
+		if IsTracked(e) {
+			return true
+		}
+
+		if w, ok := e.(wrapper); ok {
+			e = w.Unwrap()
+		} else {
+			e = nil
+		}
+	}
+
+	return false
 }
 
 // IsTracked returns true if the error is being tracked, i.e. those created via
 // the Error and Checkpoint functions.
 func IsTracked(e error) bool {
-	panic("TODO api.IsTracked")
+	_, ok := e.(*trackedError)
+	return ok
 }
 
 // IsCheckpoint returns true if the error is a trackable checkpoint.
