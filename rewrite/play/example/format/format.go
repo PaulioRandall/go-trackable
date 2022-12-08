@@ -11,6 +11,8 @@ import (
 var (
 	ErrFormatPkg = track.Checkpoint("play/example/format")
 	ErrFormatRow = track.Error("Could not format row")
+
+	zeroTime time.Time
 )
 
 type PhReading struct {
@@ -41,12 +43,12 @@ func formatRow(row []string) (PhReading, error) {
 
 	reading.From, reading.To, e = parseDate(row[0])
 	if e != nil {
-		return zero, ErrFormatRow.CausedBy(e, "Could not parse date")
+		return zero, ErrFormatRow.CausedBy(e, "Could not parse date %q", row[0])
 	}
 
 	reading.Value, e = strconv.ParseFloat(row[1], 32)
 	if e != nil {
-		return zero, ErrFormatRow.CausedBy(e, "Could not parse pH value")
+		return zero, ErrFormatRow.CausedBy(e, "Could not parse pH value %q", row[1])
 	}
 
 	return reading, nil
@@ -68,49 +70,44 @@ func parseDate(dateStr string) (time.Time, time.Time, error) {
 		return from, to, nil
 	}
 
-	var zero time.Time
-	return zero, zero, track.Untracked("Date string %q could not be parsed as day or day range", dateStr)
+	return zeroTime, zeroTime, track.Untracked("Date string %q could not be parsed as day or day range", dateStr)
 }
 
-func parseInMonthDayRange(dateStr string) (from time.Time, to time.Time, ok bool) {
-	inMonthDayRange := regexp.MustCompile(`^(\d{1,2})-(\d{1,2})([A-Za-z]{3})$`)
+func parseInMonthDayRange(dateStr string) (time.Time, time.Time, bool) {
+	//                   from-day   to-day      month
+	inMonthDayRange := `^(\d{1,2})-(\d{1,2})([A-Za-z]{3})$`
 	groups, ok := findGroups(inMonthDayRange, dateStr)
 
 	if !ok {
-		return
+		return zeroTime, zeroTime, false
 	}
 
 	var e error
 	groups = groups[1:] // Remove full match group
 
-	if from, e = parseDayFromParts(groups[0], groups[2]); e != nil {
-		return
-	}
-
-	if to, e = parseDayFromParts(groups[1], groups[2]); e != nil {
-		return
+	from, to, e := parseDayRangeFromParts(groups[0], groups[2], groups[1], groups[2])
+	if e != nil {
+		return zeroTime, zeroTime, false
 	}
 
 	return from, to, true
 }
 
-func parseAcrossMonthDayRange(dateStr string) (from time.Time, to time.Time, ok bool) {
-	acrossMonthDayRange := regexp.MustCompile(`^(\d{1,2})([A-Za-z]{3})-(\d{1,2})([A-Za-z]{3})$`)
+func parseAcrossMonthDayRange(dateStr string) (time.Time, time.Time, bool) {
+	//                       from-day   from-month   to-day     to-month
+	acrossMonthDayRange := `^(\d{1,2})([A-Za-z]{3})-(\d{1,2})([A-Za-z]{3})$`
 	groups, ok := findGroups(acrossMonthDayRange, dateStr)
 
 	if !ok {
-		return
+		return zeroTime, zeroTime, false
 	}
 
 	var e error
 	groups = groups[1:] // Remove full match group
 
-	if from, e = parseDayFromParts(groups[0], groups[1]); e != nil {
-		return
-	}
-
-	if to, e = parseDayFromParts(groups[2], groups[3]); e != nil {
-		return
+	from, to, e := parseDayRangeFromParts(groups[0], groups[1], groups[2], groups[3])
+	if e != nil {
+		return zeroTime, zeroTime, false
 	}
 
 	return from, to, true
@@ -121,11 +118,20 @@ func parseDay(dateStr string) (time.Time, error) {
 	return time.Parse(dayFmt, dateStr)
 }
 
-func parseDayFromParts(day, month string) (time.Time, error) {
-	return parseDay(day + " " + month)
+func parseDayRangeFromParts(fromDay, fromMonth, toDay, toMonth string) (from, to time.Time, e error) {
+	if from, e = parseDay(fromDay + " " + fromMonth); e != nil {
+		return
+	}
+
+	if to, e = parseDay(toDay + " " + toMonth); e != nil {
+		return
+	}
+
+	return
 }
 
-func findGroups(re *regexp.Regexp, str string) ([]string, bool) {
+func findGroups(reStr, str string) ([]string, bool) {
+	re := regexp.MustCompile(reStr)
 	matches := re.FindAllStringSubmatch(str, -1)
 	if len(matches) == 0 {
 		return nil, false
