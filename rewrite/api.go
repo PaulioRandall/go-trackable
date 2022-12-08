@@ -41,11 +41,20 @@ func Untracked(msg string, args ...any) *untrackedError {
 	return globalRealm.Untracked(msg, args...)
 }
 
-// Error returns a new tracked error from this package's singleton Realm.
+// Error is an alias for Track. More readable when combined with the package
+// name, i.e. 'track.Error(...)' as opposed to 'track.Track(...)'.
+//
+// The Track function is kept because it maintains alignment with the Realm
+// interface.
+func Error(msg string, args ...any) *trackedError {
+	return globalRealm.Track(msg, args...)
+}
+
+// Track returns a new tracked error from this package's singleton Realm.
 //
 // This is recommended way to use to create all trackable errors outside of
 // testing.
-func Error(msg string, args ...any) *trackedError {
+func Track(msg string, args ...any) *trackedError {
 	return globalRealm.Track(msg, args...)
 }
 
