@@ -7,11 +7,11 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-func Test_trackedError_type(t *testing.T) {
+func Test_trackedError_0(t *testing.T) {
 	var _ TrackedError = trackedError{}
 }
 
-func Test_trackedError_Is_1(t *testing.T) {
+func Test_trackedError_1(t *testing.T) {
 	a := &trackedError{
 		id:    1,
 		msg:   "abc",
@@ -27,7 +27,7 @@ func Test_trackedError_Is_1(t *testing.T) {
 	require.True(t, a.Is(b))
 }
 
-func Test_trackedError_Is_2(t *testing.T) {
+func Test_trackedError_2(t *testing.T) {
 	a := &trackedError{
 		id:    1,
 		msg:   "abc",
@@ -43,7 +43,7 @@ func Test_trackedError_Is_2(t *testing.T) {
 	require.False(t, a.Is(b))
 }
 
-func Test_trackedError_Wrap_1(t *testing.T) {
+func Test_trackedError_3(t *testing.T) {
 	rootCause := errors.New("Root cause")
 
 	given := &trackedError{
@@ -63,7 +63,7 @@ func Test_trackedError_Wrap_1(t *testing.T) {
 	require.Equal(t, exp, act)
 }
 
-func Test_trackedError_Because_1(t *testing.T) {
+func Test_trackedError_4(t *testing.T) {
 	given := &trackedError{
 		id:    1,
 		msg:   "abc",
@@ -84,7 +84,7 @@ func Test_trackedError_Because_1(t *testing.T) {
 	require.Equal(t, exp, act)
 }
 
-func Test_trackedError_BecauseOf_1(t *testing.T) {
+func Test_trackedError_5(t *testing.T) {
 	rootCause := errors.New("Root cause")
 
 	given := &trackedError{
@@ -107,7 +107,7 @@ func Test_trackedError_BecauseOf_1(t *testing.T) {
 	require.Equal(t, exp, act)
 }
 
-func Test_trackedError_Checkpoint_1(t *testing.T) {
+func Test_trackedError_6(t *testing.T) {
 	rootCause := errors.New("Root cause")
 
 	given := &trackedError{
@@ -125,6 +125,36 @@ func Test_trackedError_Checkpoint_1(t *testing.T) {
 			isCheckpoint: true,
 			msg:          "123",
 			cause:        rootCause,
+		},
+	}
+
+	require.Equal(t, exp, act)
+}
+
+func Test_trackedError_7(t *testing.T) {
+	given := &trackedError{
+		id:    1,
+		msg:   "abc",
+		cause: nil,
+	}
+
+	cause := &trackedError{
+		id:    2,
+		msg:   "efg",
+		cause: nil,
+	}
+
+	act := given.BecauseOf(cause, "xyz")
+
+	exp := &trackedError{
+		id:  given.id,
+		msg: given.msg,
+		cause: &trackedError{
+			id:  cause.id,
+			msg: cause.msg,
+			cause: &untrackedError{
+				msg: "xyz",
+			},
 		},
 	}
 

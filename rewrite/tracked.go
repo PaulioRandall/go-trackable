@@ -1,7 +1,5 @@
 package track
 
-// TODO: Add trackedError.BecauseOf that allows a trackedError to be nested
-
 // TrackedError represents a trackable node in an error stack trace.
 //
 // A tracked error may also represents a checkpoint in an error stack. The
@@ -27,6 +25,24 @@ type TrackedError interface {
 	// IsCheckpoint returns true if the trackable error represents a checkpoint
 	// in the stack trace.
 	IsCheckpoint() bool
+
+	// BecauseOf returns a copy of the receiving error calling Because on the
+	// passed cause wrapping with the error msg and args.
+	//
+	// Unlike the CausedBy function the cause here becomes an intermediate cause
+	// rather than the root. This allows a single call to add two tracked errors
+	// to the error stack at once.
+	BecauseOf(cause Because, msg string, args ...any) error
+}
+
+// Because represents errors that can have a cause created and attached to
+// them.
+//
+// This interface is primarily for documentation.
+type Because interface {
+	// Because returns a copy of the receiving error constructing a cause from
+	// msg and args.
+	Because(msg string, args ...any) error
 }
 
 type trackedError struct {
@@ -77,4 +93,9 @@ func (e trackedError) Is(other error) bool {
 
 func (e trackedError) IsCheckpoint() bool {
 	return e.isCheckpoint
+}
+
+func (e trackedError) BecauseOf(cause Because, msg string, args ...any) error {
+	e.cause = cause.Because(msg, args...)
+	return &e
 }
