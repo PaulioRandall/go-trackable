@@ -4,6 +4,7 @@ import (
 	"github.com/PaulioRandall/trackable/rewrite"
 
 	"github.com/PaulioRandall/trackable/rewrite/play/example/clean"
+	"github.com/PaulioRandall/trackable/rewrite/play/example/format"
 	"github.com/PaulioRandall/trackable/rewrite/play/example/read"
 )
 
@@ -28,17 +29,23 @@ func Run() {
 }
 
 func executeWorkflow(filename string) error {
-	data, e := read.CSV(filename)
+	data, e := read.Read(filename)
 	if e != nil {
 		return ErrExeWorkflow.Wrap(e)
 	}
 
-	if e = clean.CSV(data); e != nil {
+	data, e = clean.Clean(data)
+	if e != nil {
 		return ErrExeWorkflow.Wrap(e)
 	}
 
-	if e = printData(data); e != nil {
-		return ErrExeWorkflow.CausedBy(e, "Failed to print out data")
+	fmtData, e := format.Format(data)
+	if e != nil {
+		return ErrExeWorkflow.Wrap(e)
+	}
+
+	if e = printData(fmtData); e != nil {
+		return ErrExeWorkflow.CausedBy(e, "Data print failure")
 	}
 
 	return nil

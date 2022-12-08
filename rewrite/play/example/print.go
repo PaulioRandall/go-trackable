@@ -1,5 +1,9 @@
 package example
 
-func printData(data [][]string) error {
+import (
+	"github.com/PaulioRandall/trackable/rewrite/play/example/format"
+)
+
+func printData(data []format.PhReading) error {
 	panic("print.printData")
 }

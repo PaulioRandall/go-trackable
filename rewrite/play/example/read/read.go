@@ -12,7 +12,7 @@ var (
 	ErrReadingCSV = track.Error("Error handling CSV file")
 )
 
-func CSV(filename string) ([][]string, error) {
+func Read(filename string) ([][]string, error) {
 	data, e := openAndReadCSV(filename)
 	if e != nil {
 		return nil, ErrReadPkg.Wrap(e)

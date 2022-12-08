@@ -6,27 +6,17 @@ import (
 	"github.com/PaulioRandall/trackable/rewrite"
 )
 
-const (
-	parseDayFmt = "13 Jan"
-)
+var ErrCleanPkg = track.Checkpoint("play/example/clean")
 
-var (
-	ErrCleanPkg = track.Checkpoint("play/example/clean")
-)
-
-func CSV(data [][]string) error {
+func Clean(data [][]string) ([][]string, error) {
 	trimCellSpaces(data)
-	removeNulls(data)
 
-	if e := parseDates(data); e != nil {
-		return ErrCleanPkg.Wrap(e)
+	var e error
+	if data, e = removeNulls(data); e != nil {
+		return nil, ErrCleanPkg.Wrap(e)
 	}
 
-	if e := parsePhValues(data); e != nil {
-		return ErrCleanPkg.Wrap(e)
-	}
-
-	return nil
+	return data, nil
 }
 
 func trimCellSpaces(data [][]string) {
@@ -39,16 +29,32 @@ func trimCellSpaces(data [][]string) {
 	}
 }
 
-func removeNulls(data [][]string) {
-	panic(ErrCleanPkg.BecauseOf(track.ErrTodo, "removeNulls func needs implementation"))
+func removeNulls(data [][]string) ([][]string, error) {
+	var results [][]string
+
+	for i := 0; i < len(data); i++ {
+		row := data[i]
+
+		if phWithoutDate(row) { // Excuse to return an error
+			return nil, track.Untracked(
+				"pH reading found without a date on line %d", lineNumber(i),
+			)
+		}
+
+		if isNotNullRecord(row) {
+			results = append(results, row)
+		}
+	}
+
+	return results, nil
 }
 
-func parseDates(data [][]string) error {
-	return track.ErrTodo.Because("parseDates func needs implementation")
+func phWithoutDate(row []string) bool {
+	return row[0] == "" && row[1] != ""
 }
 
-func parsePhValues(data [][]string) error {
-	return track.ErrTodo.Because("parsePhValues func needs implementation")
+func isNotNullRecord(row []string) bool {
+	return row[0] != "" && row[1] != ""
 }
 
 func lineNumber(i int) int {
