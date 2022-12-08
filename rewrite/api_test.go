@@ -61,6 +61,66 @@ func Test_HasTracked_2(t *testing.T) {
 	require.False(t, HasTracked(a))
 }
 
+func Test_All_1(t *testing.T) {
+	c := &untrackedError{
+		msg: "c",
+	}
+
+	b := &untrackedError{
+		msg:   "b",
+		cause: c,
+	}
+
+	a := &untrackedError{
+		msg:   "a",
+		cause: b,
+	}
+
+	e := a
+	require.True(t, All(e, a, b, c))
+}
+
+func Test_All_2(t *testing.T) {
+	c := &untrackedError{
+		msg: "c",
+	}
+
+	b := &untrackedError{
+		msg: "b",
+		//cause: c,
+	}
+
+	a := &untrackedError{
+		msg:   "a",
+		cause: b,
+	}
+
+	e := a
+	require.False(t, All(e, a, b, c))
+}
+
+func Test_Any_1(t *testing.T) {
+	c := &untrackedError{
+		msg: "c",
+	}
+
+	b := &untrackedError{
+		msg: "b",
+		//cause: c,
+	}
+
+	a := &untrackedError{
+		msg:   "a",
+		cause: b,
+	}
+
+	e := a
+	require.True(t, Any(e, a, b, c))
+	require.True(t, Any(e, a, b))
+	require.True(t, Any(e, b, c))
+	require.False(t, Any(e, c))
+}
+
 func Test_ErrorStack_1(t *testing.T) {
 	r := IntRealm{}
 

@@ -118,12 +118,22 @@ func Is(e, target error) bool {
 
 // All returns true only if errors.Is returns true for all targets.
 func All(e error, targets ...error) bool {
-	panic("TODO api.All")
+	for _, t := range targets {
+		if !errors.Is(e, t) {
+			return false
+		}
+	}
+	return true
 }
 
 // Any returns true if errors.Is returns true for any target.
 func Any(e error, targets ...error) bool {
-	panic("TODO api.Any")
+	for _, t := range targets {
+		if errors.Is(e, t) {
+			return true
+		}
+	}
+	return false
 }
 
 // ErrorStack returns a human readable stack trace for the error.
