@@ -6,7 +6,7 @@ import (
 	"github.com/PaulioRandall/go-trackerr"
 )
 
-var ErrCleanPkg = trackerr.Checkpoint("play/example/clean")
+var ErrCleanPkg = trackerr.Track("Failed to clean data")
 
 func Clean(data [][]string) ([][]string, error) {
 	trimCellSpaces(data)

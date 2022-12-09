@@ -8,6 +8,16 @@ import (
 	"strings"
 )
 
+// TODO: Realm.ErrorFormatter accepts `func(e error, parent error) string`
+// TODO: which formats an error into a string when debug printing. Each
+// TODO: error string will be printed on a line of its own so implementations
+// TODO: should not prefix or suffix a linefeed unless they want gappy print
+// TODO: outs.
+// TODO:
+// TODO: Will probably need an `IsThirdParty` func that returns true if the
+// TODO: error does not implement the UntrackedError or TrackedError, i.e. it's
+// TODO: not a go-trackerr error (but the reverse is not guaranteed to be true).
+
 // TODO: Think about how to integrate file names and line numbers.
 // TODO: - How, where, and when to collect them?
 // TODO: - How to optimise print outs with them?
@@ -170,28 +180,28 @@ func Any(e error, targets ...error) bool {
 // ErrorStack returns a human readable stack trace for the error.
 func ErrorStack(e error) string {
 	sb := strings.Builder{}
-	sb.WriteString("  ")
 
 	for i, cause := range AsStack(e) {
+		errStr := ErrorWithoutCause(cause)
 
-		var prefix, suffix string
 		if IsCheckpoint(cause) {
-			prefix = "\n——"
-			suffix = "——"
+			if i == 0 {
+				sb.WriteString("——")
+			} else {
+				sb.WriteString("\n——")
+			}
+
+			sb.WriteString(errStr)
+			sb.WriteString("——")
+			continue
+		}
+
+		if i == 0 {
+			sb.WriteString("  ")
 		} else {
-			prefix = "\n⤷ "
+			sb.WriteString("\n⤷ ")
 		}
-
-		if i > 0 {
-			sb.WriteString(prefix)
-		}
-
-		s := ErrorWithoutCause(cause)
-		sb.WriteString(s)
-
-		if i > 0 {
-			sb.WriteString(suffix)
-		}
+		sb.WriteString(errStr)
 	}
 
 	sb.WriteString("\n")

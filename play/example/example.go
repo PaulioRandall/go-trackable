@@ -8,7 +8,7 @@ import (
 	"github.com/PaulioRandall/go-trackerr/play/example/read"
 )
 
-var ErrExeWorkflow = trackerr.Track("Executing workflow failed")
+var ErrExeWorkflow = trackerr.Checkpoint("Workflow error")
 
 // Run provides example usage of go-trackerr.
 //
@@ -21,7 +21,7 @@ var ErrExeWorkflow = trackerr.Track("Executing workflow failed")
 func Run() {
 	defer trackerr.DebugPanic(nil)
 
-	e := executeWorkflow("play/example/data/acid-rain.csv")
+	e := executeWorkflow("splay/example/data/acid-rain.csv")
 	if e != nil {
 		trackerr.Debug(e)
 	}
