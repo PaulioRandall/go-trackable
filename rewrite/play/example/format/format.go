@@ -118,15 +118,14 @@ func parseDay(dateStr string) (time.Time, error) {
 	return time.Parse(dayFmt, dateStr)
 }
 
-func parseDayRangeFromParts(fromDay, fromMonth, toDay, toMonth string) (from, to time.Time, e error) {
+func parseDayRangeFromParts(
+	fromDay, fromMonth string,
+	toDay, toMonth string,
+) (from, to time.Time, e error) {
 	if from, e = parseDay(fromDay + " " + fromMonth); e != nil {
 		return
 	}
-
-	if to, e = parseDay(toDay + " " + toMonth); e != nil {
-		return
-	}
-
+	to, e = parseDay(toDay + " " + toMonth)
 	return
 }
 

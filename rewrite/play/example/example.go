@@ -42,14 +42,11 @@ func executeWorkflow(filename string) error {
 		return ErrExeWorkflow.Wrap(e)
 	}
 
-	fmtData, e := format.Format(data)
+	readings, e := format.Format(data)
 	if e != nil {
 		return ErrExeWorkflow.Wrap(e)
 	}
 
-	if e = printData(fmtData); e != nil {
-		return ErrExeWorkflow.CausedBy(e, "Data print failure")
-	}
-
+	printReadings(readings)
 	return nil
 }
