@@ -10,7 +10,7 @@ import (
 
 var (
 	ErrFormatPkg = trackerr.Checkpoint("play/example/format")
-	ErrFormatRow = trackerr.Error("Could not format row")
+	ErrFormatRow = trackerr.Track("Could not format row")
 
 	zeroTime time.Time
 )

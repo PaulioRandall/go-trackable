@@ -9,7 +9,7 @@ import (
 
 var (
 	ErrReadPkg    = trackerr.Checkpoint("play/example/read package")
-	ErrReadingCSV = trackerr.Error("Error handling CSV file")
+	ErrReadingCSV = trackerr.Track("Error handling CSV file")
 )
 
 func Read(filename string) ([][]string, error) {

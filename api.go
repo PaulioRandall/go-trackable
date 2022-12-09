@@ -20,13 +20,13 @@ var (
 	//
 	// This can be useful if you're taking a stepwise refinement or test driven
 	// approach to writing code.
-	ErrTodo = Error("TODO: Implementation needed")
+	ErrTodo = Track("TODO: Implementation needed")
 
 	// ErrBug is a convenience tracked error for use at the site of known bugs.
-	ErrBug = Error("BUG: Fix needed")
+	ErrBug = Track("BUG: Fix needed")
 
 	// ErrInsane is a convenience tracked error for sanity checking.
-	ErrInsane = Error("Sanity check!!")
+	ErrInsane = Track("Sanity check!!")
 )
 
 // Untracked returns a new error without a tracking ID.
@@ -38,13 +38,10 @@ func Untracked(msg string, args ...any) *untrackedError {
 	return globalRealm.Untracked(msg, args...)
 }
 
-// Error is an alias for Track. More readable when combined with the package
-// name, i.e. 'trackerr.Error(...)' as opposed to 'trackerr.Track(...)'.
-//
-// The Track function is kept because it maintains alignment with the Realm
-// interface.
-func Error(msg string, args ...any) *trackedError {
-	return globalRealm.Track(msg, args...)
+// Wrap returns a new untracked error that wraps a cause.
+func Wrap(cause error, msg string, args ...any) *untrackedError {
+	e := globalRealm.Untracked(msg, args...)
+	return e.Wrap(e).(*untrackedError)
 }
 
 // Track returns a new tracked error from this package's singleton Realm.

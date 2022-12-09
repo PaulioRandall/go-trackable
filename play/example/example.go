@@ -8,7 +8,7 @@ import (
 	"github.com/PaulioRandall/go-trackerr/play/example/read"
 )
 
-var ErrExeWorkflow = trackerr.Error("Executing workflow failed")
+var ErrExeWorkflow = trackerr.Track("Executing workflow failed")
 
 // Run provides example usage of go-trackerr.
 //
