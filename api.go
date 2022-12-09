@@ -41,7 +41,7 @@ func Untracked(msg string, args ...any) *untrackedError {
 // Wrap returns a new untracked error that wraps a cause.
 func Wrap(cause error, msg string, args ...any) *untrackedError {
 	e := globalRealm.Untracked(msg, args...)
-	return e.Wrap(e).(*untrackedError)
+	return e.Wrap(cause).(*untrackedError)
 }
 
 // Track returns a new tracked error from this package's singleton Realm.
