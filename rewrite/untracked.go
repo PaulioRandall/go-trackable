@@ -16,9 +16,6 @@ type UntrackedError interface {
 	// underlying cause.
 	Wrap(error) error
 
-	// Copy returns a shallow copy of the error.
-	Copy() error
-
 	// Because returns a copy of the receiving error constructing a cause from
 	// msg and args.
 	Because(msg string, args ...any) error
@@ -50,10 +47,6 @@ func (e untrackedError) Unwrap() error {
 func (e untrackedError) Wrap(cause error) error {
 	e.cause = cause
 	return &e
-}
-
-func (e untrackedError) Copy() error {
-	return e
 }
 
 func (e untrackedError) Because(msg string, args ...any) error {

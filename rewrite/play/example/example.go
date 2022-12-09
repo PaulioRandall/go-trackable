@@ -12,12 +12,12 @@ var ErrExeWorkflow = track.Error("Executing workflow failed")
 
 // Run provides example usage of go-track.
 //
-// Try breaking some of the parameters and logic to see the error stack traces
-// that get produced. Also try dirtying the data in various ways to see what
-// errors the clean and format package produce.
+// Try breaking some of the parameters, logic, or data to see the error stack
+// traces that get produced.
 //
-// It's verbose in terms of errors on purpose to show off the various features.
-// In reality you only want to put in the error handling you need.
+// The example is verbose in terms of errors on purpose to show off the various
+// features. In real usage I'd recommend maximising relevant information while
+// minimising tracked errors.
 func Run() {
 	defer func() {
 		if v := recover(); v != nil {

@@ -65,10 +65,6 @@ func (e trackedError) Wrap(cause error) error {
 	return &e
 }
 
-func (e trackedError) Copy() error {
-	return e
-}
-
 func (e trackedError) Because(msg string, args ...any) error {
 	e.cause = because(msg, args...)
 	return &e
