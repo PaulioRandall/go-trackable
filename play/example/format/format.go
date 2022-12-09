@@ -5,7 +5,7 @@ import (
 	"strconv"
 	"time"
 
-	"github.com/PaulioRandall/trackable/rewrite"
+	"github.com/PaulioRandall/go-trackable"
 )
 
 var (

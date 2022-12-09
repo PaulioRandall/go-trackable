@@ -4,7 +4,7 @@ import (
 	"encoding/csv"
 	"os"
 
-	"github.com/PaulioRandall/trackable/rewrite"
+	"github.com/PaulioRandall/go-trackable"
 )
 
 var (

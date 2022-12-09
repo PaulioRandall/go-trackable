@@ -1,11 +1,11 @@
 package example
 
 import (
-	"github.com/PaulioRandall/trackable/rewrite"
+	"github.com/PaulioRandall/go-trackable"
 
-	"github.com/PaulioRandall/trackable/rewrite/play/example/clean"
-	"github.com/PaulioRandall/trackable/rewrite/play/example/format"
-	"github.com/PaulioRandall/trackable/rewrite/play/example/read"
+	"github.com/PaulioRandall/go-trackable/play/example/clean"
+	"github.com/PaulioRandall/go-trackable/play/example/format"
+	"github.com/PaulioRandall/go-trackable/play/example/read"
 )
 
 var ErrExeWorkflow = track.Error("Executing workflow failed")
@@ -21,7 +21,7 @@ var ErrExeWorkflow = track.Error("Executing workflow failed")
 func Run() {
 	defer track.DebugPanic(nil)
 
-	e := executeWorkflow("rewrite/play/example/data/acid-rain.csv")
+	e := executeWorkflow("play/example/data/acid-rain.csv")
 	if e != nil {
 		track.Debug(e)
 	}

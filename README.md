@@ -1,5 +1,7 @@
 # Go Trackable
 
+> TODO: Rewrite this README
+
 Go Trackable is a library for creating trackable, traceable, and comparable errors.
 
 I hope the code speaks mostly for itself so you don't have to trawl through my ramblings.

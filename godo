@@ -5,7 +5,7 @@ set -e
 tabs -2
 
 EXE_NAME="play"
-MAIN_FILE="rewrite/play/play.go"
+MAIN_FILE="play/play.go"
 
 BUILD_DIR="bin"
 TEST_TIMEOUT="2s"

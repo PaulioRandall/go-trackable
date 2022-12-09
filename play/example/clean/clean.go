@@ -3,7 +3,7 @@ package clean
 import (
 	"strings"
 
-	"github.com/PaulioRandall/trackable/rewrite"
+	"github.com/PaulioRandall/go-trackable"
 )
 
 var ErrCleanPkg = track.Checkpoint("play/example/clean")
