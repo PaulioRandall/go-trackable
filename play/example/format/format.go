@@ -5,12 +5,12 @@ import (
 	"strconv"
 	"time"
 
-	"github.com/PaulioRandall/go-trackable"
+	"github.com/PaulioRandall/go-trackerr"
 )
 
 var (
-	ErrFormatPkg = track.Checkpoint("play/example/format")
-	ErrFormatRow = track.Error("Could not format row")
+	ErrFormatPkg = trackerr.Checkpoint("play/example/format")
+	ErrFormatRow = trackerr.Error("Could not format row")
 
 	zeroTime time.Time
 )
@@ -70,7 +70,7 @@ func parseDate(dateStr string) (time.Time, time.Time, error) {
 		return from, to, nil
 	}
 
-	return zeroTime, zeroTime, track.Untracked("Date string %q could not be parsed as day or day range", dateStr)
+	return zeroTime, zeroTime, trackerr.Untracked("Date string %q could not be parsed as day or day range", dateStr)
 }
 
 func parseInMonthDayRange(dateStr string) (time.Time, time.Time, bool) {

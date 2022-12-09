@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/PaulioRandall/go-trackable/play/example/format"
+	"github.com/PaulioRandall/go-trackerr/play/example/format"
 )
 
 const timePrintFormat = "Jan _2"

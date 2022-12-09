@@ -1,4 +1,4 @@
-package track
+package trackerr
 
 // Realm represents a space where each trackable error (stack trace node)
 // has its own unique ID.

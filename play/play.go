@@ -3,7 +3,7 @@ package main
 import (
 	"fmt"
 
-	"github.com/PaulioRandall/go-trackable/play/example"
+	"github.com/PaulioRandall/go-trackerr/play/example"
 )
 
 func main() {

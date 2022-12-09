@@ -3,10 +3,10 @@ package clean
 import (
 	"strings"
 
-	"github.com/PaulioRandall/go-trackable"
+	"github.com/PaulioRandall/go-trackerr"
 )
 
-var ErrCleanPkg = track.Checkpoint("play/example/clean")
+var ErrCleanPkg = trackerr.Checkpoint("play/example/clean")
 
 func Clean(data [][]string) ([][]string, error) {
 	trimCellSpaces(data)
@@ -36,7 +36,7 @@ func removeNulls(data [][]string) ([][]string, error) {
 		row := data[i]
 
 		if phWithoutDate(row) { // Excuse to return an error
-			return nil, track.Untracked(
+			return nil, trackerr.Untracked(
 				"pH reading found without a date on line %d", lineNumber(i),
 			)
 		}

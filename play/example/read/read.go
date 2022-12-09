@@ -4,12 +4,12 @@ import (
 	"encoding/csv"
 	"os"
 
-	"github.com/PaulioRandall/go-trackable"
+	"github.com/PaulioRandall/go-trackerr"
 )
 
 var (
-	ErrReadPkg    = track.Checkpoint("play/example/read package")
-	ErrReadingCSV = track.Error("Error handling CSV file")
+	ErrReadPkg    = trackerr.Checkpoint("play/example/read package")
+	ErrReadingCSV = trackerr.Error("Error handling CSV file")
 )
 
 func Read(filename string) ([][]string, error) {

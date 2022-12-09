@@ -1,4 +1,4 @@
-package track
+package trackerr
 
 // TrackedError represents a trackable node in an error stack trace.
 //

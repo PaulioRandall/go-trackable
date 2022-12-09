@@ -1,4 +1,4 @@
-module github.com/PaulioRandall/go-trackable
+module github.com/PaulioRandall/go-trackerr
 
 go 1.18
 

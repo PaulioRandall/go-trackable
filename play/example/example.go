@@ -1,16 +1,16 @@
 package example
 
 import (
-	"github.com/PaulioRandall/go-trackable"
+	"github.com/PaulioRandall/go-trackerr"
 
-	"github.com/PaulioRandall/go-trackable/play/example/clean"
-	"github.com/PaulioRandall/go-trackable/play/example/format"
-	"github.com/PaulioRandall/go-trackable/play/example/read"
+	"github.com/PaulioRandall/go-trackerr/play/example/clean"
+	"github.com/PaulioRandall/go-trackerr/play/example/format"
+	"github.com/PaulioRandall/go-trackerr/play/example/read"
 )
 
-var ErrExeWorkflow = track.Error("Executing workflow failed")
+var ErrExeWorkflow = trackerr.Error("Executing workflow failed")
 
-// Run provides example usage of go-track.
+// Run provides example usage of go-trackerr.
 //
 // Try breaking some of the parameters, logic, or data to see the error stack
 // traces that get produced.
@@ -19,11 +19,11 @@ var ErrExeWorkflow = track.Error("Executing workflow failed")
 // features. In real usage I'd recommend maximising relevant information while
 // minimising tracked errors.
 func Run() {
-	defer track.DebugPanic(nil)
+	defer trackerr.DebugPanic(nil)
 
 	e := executeWorkflow("play/example/data/acid-rain.csv")
 	if e != nil {
-		track.Debug(e)
+		trackerr.Debug(e)
 	}
 }
 

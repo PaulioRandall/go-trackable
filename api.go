@@ -1,6 +1,6 @@
-// Package track aims to facilitate creation of referenceable errors and
+// Package trackerr aims to facilitate creation of referenceable errors and
 // elegant stack traces.
-package track
+package trackerr
 
 import (
 	"errors"
@@ -39,7 +39,7 @@ func Untracked(msg string, args ...any) *untrackedError {
 }
 
 // Error is an alias for Track. More readable when combined with the package
-// name, i.e. 'track.Error(...)' as opposed to 'track.Track(...)'.
+// name, i.e. 'trackerr.Error(...)' as opposed to 'trackerr.Track(...)'.
 //
 // The Track function is kept because it maintains alignment with the Realm
 // interface.
