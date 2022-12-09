@@ -19,11 +19,7 @@ var ErrExeWorkflow = track.Error("Executing workflow failed")
 // features. In real usage I'd recommend maximising relevant information while
 // minimising tracked errors.
 func Run() {
-	defer func() {
-		if v := recover(); v != nil {
-			track.Debug(v.(error))
-		}
-	}()
+	defer track.DebugPanic(nil)
 
 	e := executeWorkflow("rewrite/play/example/data/acid-rain.csv")
 	if e != nil {

@@ -113,3 +113,19 @@ func Test_AsStack_1(t *testing.T) {
 
 	require.Equal(t, exp, act)
 }
+
+func Test_DebugPanic_1(t *testing.T) {
+	given := func() (e error) {
+		defer DebugPanic(&e)
+
+		if true {
+			panic(trackedAlpha)
+		}
+
+		return nil
+	}
+
+	e := given()
+
+	require.Equal(t, e, trackedAlpha)
+}
