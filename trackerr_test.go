@@ -7,9 +7,9 @@ import (
 )
 
 var (
-	untrackedAlpha   = &untrackedError{msg: "untracked alpha"}
-	untrackedBeta    = &untrackedError{msg: "untracked beta"}
-	untrackedCharlie = &untrackedError{msg: "untracked charlie"}
+	untrackedAlpha   = &UntrackedError{msg: "untracked alpha"}
+	untrackedBeta    = &UntrackedError{msg: "untracked beta"}
+	untrackedCharlie = &UntrackedError{msg: "untracked charlie"}
 
 	trackedAlpha   = &trackedError{id: 1, msg: "tracked alpha"}
 	trackedBeta    = &trackedError{id: 2, msg: "tracked beta"}
@@ -26,7 +26,7 @@ func Test_IsTracked_1(t *testing.T) {
 }
 
 func Test_IsTracked_2(t *testing.T) {
-	e := &untrackedError{
+	e := &UntrackedError{
 		msg: "abc",
 	}
 

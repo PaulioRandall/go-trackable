@@ -75,7 +75,7 @@ func Test_trackedError_4(t *testing.T) {
 	exp := &trackedError{
 		id:  given.id,
 		msg: given.msg,
-		cause: &untrackedError{
+		cause: &UntrackedError{
 			msg:   "123",
 			cause: nil,
 		},
@@ -98,7 +98,7 @@ func Test_trackedError_5(t *testing.T) {
 	exp := &trackedError{
 		id:  given.id,
 		msg: given.msg,
-		cause: &untrackedError{
+		cause: &UntrackedError{
 			msg:   "123",
 			cause: rootCause,
 		},
@@ -152,7 +152,7 @@ func Test_trackedError_7(t *testing.T) {
 		cause: &trackedError{
 			id:  cause.id,
 			msg: cause.msg,
-			cause: &untrackedError{
+			cause: &UntrackedError{
 				msg: "xyz",
 			},
 		},

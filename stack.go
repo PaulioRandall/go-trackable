@@ -83,7 +83,7 @@ func AsStack(e error) []error {
 func ErrorWithoutCause(e error) string {
 	s := e.Error()
 
-	if _, ok := e.(*untrackedError); ok {
+	if _, ok := e.(*UntrackedError); ok {
 		return s
 	}
 

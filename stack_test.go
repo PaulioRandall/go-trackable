@@ -31,9 +31,9 @@ func Test_ErrorStack_1(t *testing.T) {
 }
 
 func Test_AsStack_1(t *testing.T) {
-	klm := &untrackedError{msg: "abc", cause: nil}
+	klm := &UntrackedError{msg: "abc", cause: nil}
 	hij := &trackedError{id: 2, msg: "hij", cause: klm}
-	efg := &untrackedError{msg: "efg", cause: hij}
+	efg := &UntrackedError{msg: "efg", cause: hij}
 	abc := &trackedError{id: 1, msg: "abc", cause: efg}
 
 	act := AsStack(abc)

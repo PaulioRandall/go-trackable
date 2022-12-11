@@ -21,8 +21,6 @@ type Because interface {
 //
 // This interface is primarily for documentation.
 type TrackedError interface {
-	UntrackedError
-
 	// Is returns true if the passed error is equivalent to the receiving
 	// error.
 	//
