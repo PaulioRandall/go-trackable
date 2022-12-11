@@ -6,8 +6,8 @@ package trackerr
 // This is primarily for testing and avoids ID pool stack overflow even
 // though such a scenario is almost impossible if the API is used correctly.
 //
-// There is an internal package level Realm that will suffice for most
-// purposes. It is used via the package level Error and Checkpoint functions.
+// There is a private global Realm in the package that will suffice for most
+// purposes. It is used via the package level Track and Checkpoint functions.
 //
 // The receiving functions are designed to be called during package
 // initialisation. This means it should only be used to initialise package
