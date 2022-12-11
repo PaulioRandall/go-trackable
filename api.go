@@ -8,23 +8,18 @@ import (
 	"strings"
 )
 
-// TODO: Realm.ErrorFormatter accepts `func(e error, parent error) string`
-// TODO: which formats an error into a string when debug printing. Each
-// TODO: error string will be printed on a line of its own so implementations
-// TODO: should not prefix or suffix a linefeed unless they want gappy print
-// TODO: outs.
-// TODO:
-// TODO: Will probably need an `IsThirdParty` func that returns true if the
-// TODO: error does not implement the UntrackedError or TrackedError, i.e. it's
-// TODO: not a go-trackerr error (but the reverse is not guaranteed to be true).
+// TODO: Think about how to allow custom error ID generators.
 
 // TODO: Think about how to integrate file names and line numbers.
 // TODO: - How, where, and when to collect them?
 // TODO: - How to optimise print outs with them?
 // TODO: - May have to redesign the Debug function?
 
+type FormatError func(msg string, e error, isFirst bool) string
+
 var (
 	globalRealm IntRealm
+	formatError FormatError = DefaultFormatter
 
 	// ErrTodo is a convenience tracked error for specifying a TODO.
 	//
@@ -36,8 +31,39 @@ var (
 	ErrBug = Track("BUG: Fix needed")
 
 	// ErrInsane is a convenience tracked error for sanity checking.
-	ErrInsane = Track("Sanity check!!")
+	ErrInsane = Track("Sanity check failed!!")
 )
+
+// DefaultFormatter is the default error formatter.
+//
+// Checkpoints are prefixed and suffixed with `——` while ordinary errors are
+// prefixed with `⤷ `:
+//
+//		——Workflow error——
+//		⤷ Failed to read data
+//		⤷ Error handling CSV file
+//		——File could not be opened "splay/example/data/acid-rain.csv"——
+//		⤷ open splay/example/data/acid-rain.csv
+//		⤷ no such file or directory
+func DefaultFormatter(msg string, e error, isFirst bool) string {
+	sb := strings.Builder{}
+
+	if IsCheckpoint(e) {
+		sb.WriteString("——")
+		sb.WriteString(msg)
+		sb.WriteString("——")
+		return sb.String()
+	}
+
+	if isFirst {
+		sb.WriteString("  ")
+	} else {
+		sb.WriteString("⤷ ")
+	}
+
+	sb.WriteString(msg)
+	return sb.String()
+}
 
 // Untracked returns a new error without a tracking ID.
 //
@@ -114,6 +140,15 @@ func DebugPanic(catch *error) {
 	*catch = e
 }
 
+// ErrorFormatter sets the function by which error lines for ErrorStack are
+// formatted.
+//
+// Each error string will be printed on a line of its own so implementations
+// should not prefix or suffix a linefeed unless they want gappy print outs.
+func ErrorFormatter(f FormatError) {
+	formatError = f
+}
+
 // HasTracked returns true if the error or one of the underlying causes are
 // tracked, i.e. those created via the Error and Checkpoint functions.
 func HasTracked(e error) bool {
@@ -152,6 +187,16 @@ func IsCheckpoint(e error) bool {
 	return false
 }
 
+// IsTrackerr returns true if the error does not implement either the
+// UntrackedError or TrackedError interfaces.
+//
+// I.e. if it's an error defined outside of go-trackerr. However, any error
+// that implements the interface will return true.
+func IsTrackerr(e error) bool {
+	_, ok := e.(UntrackedError)
+	return ok
+}
+
 // Is is an alias for errors.Is.
 func Is(e, target error) bool {
 	return errors.Is(e, target)
@@ -182,29 +227,12 @@ func ErrorStack(e error) string {
 	sb := strings.Builder{}
 
 	for i, cause := range AsStack(e) {
-		errStr := ErrorWithoutCause(cause)
-
-		if IsCheckpoint(cause) {
-			if i == 0 {
-				sb.WriteString("——")
-			} else {
-				sb.WriteString("\n——")
-			}
-
-			sb.WriteString(errStr)
-			sb.WriteString("——")
-			continue
-		}
-
-		if i == 0 {
-			sb.WriteString("  ")
-		} else {
-			sb.WriteString("\n⤷ ")
-		}
-		sb.WriteString(errStr)
+		errMsg := ErrorWithoutCause(cause)
+		errMsg = formatError(errMsg, cause, i == 0)
+		sb.WriteString(errMsg)
+		sb.WriteRune('\n')
 	}
 
-	sb.WriteString("\n")
 	return sb.String()
 }
 
