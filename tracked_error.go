@@ -9,20 +9,11 @@ type Because interface {
 }
 
 // TrackedError represents a trackable node in an error stack trace.
-//
-// A tracked error may also represents a checkpoint in an error stack. The
-// primary purpose being to note interfaces in stack traces, that is, denote
-// the key boundary between packages, libraries, systems, and other key
-// integration points.
-//
-// The aim of checkpoints is to enable stack trace partitioning so they are
-// more meaningful, readable, navigable. Thus aiding debugging. Key
-// information can then be highlighted in stack trace print outs.
 type TrackedError struct {
 	id           int
-	isCheckpoint bool
 	msg          string
 	cause        error
+	isCheckpoint bool
 }
 
 func (e TrackedError) Error() string {

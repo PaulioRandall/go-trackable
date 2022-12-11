@@ -121,7 +121,7 @@ func Test_trackedError_6(t *testing.T) {
 	exp := &TrackedError{
 		id:  given.id,
 		msg: given.msg,
-		cause: &TrackedError{
+		cause: &UntrackedError{
 			isCheckpoint: true,
 			msg:          "123",
 			cause:        rootCause,
