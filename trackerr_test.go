@@ -11,13 +11,13 @@ var (
 	untrackedBeta    = &UntrackedError{msg: "untracked beta"}
 	untrackedCharlie = &UntrackedError{msg: "untracked charlie"}
 
-	trackedAlpha   = &trackedError{id: 1, msg: "tracked alpha"}
-	trackedBeta    = &trackedError{id: 2, msg: "tracked beta"}
-	trackedCharlie = &trackedError{id: 3, msg: "tracked charlie"}
+	trackedAlpha   = &TrackedError{id: 1, msg: "tracked alpha"}
+	trackedBeta    = &TrackedError{id: 2, msg: "tracked beta"}
+	trackedCharlie = &TrackedError{id: 3, msg: "tracked charlie"}
 )
 
 func Test_IsTracked_1(t *testing.T) {
-	e := &trackedError{
+	e := &TrackedError{
 		id:  1,
 		msg: "abc",
 	}

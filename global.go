@@ -32,7 +32,7 @@ func Wrap(cause error, msg string, args ...any) *UntrackedError {
 //
 // This is recommended way to use to create all trackable errors outside of
 // testing.
-func Track(msg string, args ...any) *trackedError {
+func Track(msg string, args ...any) *TrackedError {
 	checkInitState()
 	return globalRealm.Track(msg, args...)
 }
@@ -42,7 +42,7 @@ func Track(msg string, args ...any) *trackedError {
 //
 // This is recommended way to use to create all checkpoint errors outside of
 // testing.
-func Checkpoint(msg string, args ...any) *trackedError {
+func Checkpoint(msg string, args ...any) *TrackedError {
 	checkInitState()
 	return globalRealm.Checkpoint(msg, args...)
 }

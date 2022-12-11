@@ -8,17 +8,17 @@ import (
 )
 
 func Test_trackedError_0(t *testing.T) {
-	var _ TrackedError = trackedError{}
+	var _ TrackedError = TrackedError{}
 }
 
 func Test_trackedError_1(t *testing.T) {
-	a := &trackedError{
+	a := &TrackedError{
 		id:    1,
 		msg:   "abc",
 		cause: errors.New("Root cause"),
 	}
 
-	b := &trackedError{
+	b := &TrackedError{
 		id:    1,
 		msg:   "efg",
 		cause: nil,
@@ -28,13 +28,13 @@ func Test_trackedError_1(t *testing.T) {
 }
 
 func Test_trackedError_2(t *testing.T) {
-	a := &trackedError{
+	a := &TrackedError{
 		id:    1,
 		msg:   "abc",
 		cause: errors.New("Root cause"),
 	}
 
-	b := &trackedError{
+	b := &TrackedError{
 		id:    2,
 		msg:   "abc",
 		cause: errors.New("Root cause"),
@@ -46,7 +46,7 @@ func Test_trackedError_2(t *testing.T) {
 func Test_trackedError_3(t *testing.T) {
 	rootCause := errors.New("Root cause")
 
-	given := &trackedError{
+	given := &TrackedError{
 		id:    1,
 		msg:   "abc",
 		cause: nil,
@@ -54,7 +54,7 @@ func Test_trackedError_3(t *testing.T) {
 
 	act := given.Wrap(rootCause)
 
-	exp := &trackedError{
+	exp := &TrackedError{
 		id:    given.id,
 		msg:   given.msg,
 		cause: rootCause,
@@ -64,7 +64,7 @@ func Test_trackedError_3(t *testing.T) {
 }
 
 func Test_trackedError_4(t *testing.T) {
-	given := &trackedError{
+	given := &TrackedError{
 		id:    1,
 		msg:   "abc",
 		cause: nil,
@@ -72,7 +72,7 @@ func Test_trackedError_4(t *testing.T) {
 
 	act := given.Because("%d%d%d", 1, 2, 3)
 
-	exp := &trackedError{
+	exp := &TrackedError{
 		id:  given.id,
 		msg: given.msg,
 		cause: &UntrackedError{
@@ -87,7 +87,7 @@ func Test_trackedError_4(t *testing.T) {
 func Test_trackedError_5(t *testing.T) {
 	rootCause := errors.New("Root cause")
 
-	given := &trackedError{
+	given := &TrackedError{
 		id:    1,
 		msg:   "abc",
 		cause: nil,
@@ -95,7 +95,7 @@ func Test_trackedError_5(t *testing.T) {
 
 	act := given.CausedBy(rootCause, "%d%d%d", 1, 2, 3)
 
-	exp := &trackedError{
+	exp := &TrackedError{
 		id:  given.id,
 		msg: given.msg,
 		cause: &UntrackedError{
@@ -110,7 +110,7 @@ func Test_trackedError_5(t *testing.T) {
 func Test_trackedError_6(t *testing.T) {
 	rootCause := errors.New("Root cause")
 
-	given := &trackedError{
+	given := &TrackedError{
 		id:    1,
 		msg:   "abc",
 		cause: nil,
@@ -118,10 +118,10 @@ func Test_trackedError_6(t *testing.T) {
 
 	act := given.Checkpoint(rootCause, "%d%d%d", 1, 2, 3)
 
-	exp := &trackedError{
+	exp := &TrackedError{
 		id:  given.id,
 		msg: given.msg,
-		cause: &trackedError{
+		cause: &TrackedError{
 			isCheckpoint: true,
 			msg:          "123",
 			cause:        rootCause,
@@ -132,13 +132,13 @@ func Test_trackedError_6(t *testing.T) {
 }
 
 func Test_trackedError_7(t *testing.T) {
-	given := &trackedError{
+	given := &TrackedError{
 		id:    1,
 		msg:   "abc",
 		cause: nil,
 	}
 
-	cause := &trackedError{
+	cause := &TrackedError{
 		id:    2,
 		msg:   "efg",
 		cause: nil,
@@ -146,10 +146,10 @@ func Test_trackedError_7(t *testing.T) {
 
 	act := given.BecauseOf(cause, "xyz")
 
-	exp := &trackedError{
+	exp := &TrackedError{
 		id:  given.id,
 		msg: given.msg,
-		cause: &trackedError{
+		cause: &TrackedError{
 			id:  cause.id,
 			msg: cause.msg,
 			cause: &UntrackedError{

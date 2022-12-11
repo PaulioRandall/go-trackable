@@ -14,7 +14,7 @@ func Test_IntRealm_1(t *testing.T) {
 	r := IntRealm{}
 
 	act := r.Track("abc%d%d%d", 1, 2, 3)
-	exp := &trackedError{
+	exp := &TrackedError{
 		id:    1,
 		msg:   "abc123",
 		cause: nil,
@@ -29,7 +29,7 @@ func Test_IntRealm_2(t *testing.T) {
 	_ = r.Track("abc%d%d%d", 1, 2, 3)
 	act := r.Track("efg%d%d%d", 4, 5, 6)
 
-	exp := &trackedError{
+	exp := &TrackedError{
 		id:    2,
 		msg:   "efg456",
 		cause: nil,
@@ -42,7 +42,7 @@ func Test_IntRealm_3(t *testing.T) {
 	r := IntRealm{}
 
 	act := r.Checkpoint("abc%d%d%d", 1, 2, 3)
-	exp := &trackedError{
+	exp := &TrackedError{
 		id:           1,
 		isCheckpoint: true,
 		msg:          "abc123",

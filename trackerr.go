@@ -59,13 +59,13 @@ func HasTracked(e error) bool {
 // IsTracked returns true if the error is being tracked, i.e. those created via
 // the Error and Checkpoint functions.
 func IsTracked(e error) bool {
-	_, ok := e.(*trackedError)
+	_, ok := e.(*TrackedError)
 	return ok
 }
 
 // IsCheckpoint returns true if the error is a trackable checkpoint.
 func IsCheckpoint(e error) bool {
-	if te, ok := e.(*trackedError); ok {
+	if te, ok := e.(*TrackedError); ok {
 		return te.IsCheckpoint()
 	}
 	return false

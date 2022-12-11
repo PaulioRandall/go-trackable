@@ -87,7 +87,7 @@ func ErrorWithoutCause(e error) string {
 		return s
 	}
 
-	if _, ok := e.(*trackedError); ok {
+	if _, ok := e.(*TrackedError); ok {
 		return s
 	}
 

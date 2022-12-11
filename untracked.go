@@ -1,8 +1,6 @@
 package trackerr
 
 // UntrackedError represents an untrackable node in an error stack trace.
-//
-// This interface is primarily for documentation.
 type UntrackedError struct {
 	msg   string
 	cause error

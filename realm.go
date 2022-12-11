@@ -19,11 +19,11 @@ package trackerr
 type Realm interface {
 
 	// Track returns a new tracked error, that is, one with a tracking ID.
-	Track(msg string, args ...any) *trackedError
+	Track(msg string, args ...any) *TrackedError
 
 	// Checkpoint returns a new tracked checkpoint error, that is, one with a
 	// tracking ID and indicates a key node within a stack trace.
-	Checkpoint(msg string, args ...any) *trackedError
+	Checkpoint(msg string, args ...any) *TrackedError
 }
 
 // IntRealm is a Realm that uses a simple incrementing integer field as the
@@ -47,8 +47,8 @@ type IntRealm struct {
 //
 // Calls to HasTracked, IsTracked, and IsTrackerr will all return true when
 // the error is passed to them.
-func (r *IntRealm) Track(msg string, args ...any) *trackedError {
-	return &trackedError{
+func (r *IntRealm) Track(msg string, args ...any) *TrackedError {
+	return &TrackedError{
 		id:  r.newID(),
 		msg: fmtMsg(msg, args...),
 	}
@@ -58,8 +58,8 @@ func (r *IntRealm) Track(msg string, args ...any) *trackedError {
 //
 // Calls to HasTracked, IsTracked, IsTrackerr, and IsCheckpoint will all return
 // true when the error is passed to them.
-func (r *IntRealm) Checkpoint(msg string, args ...any) *trackedError {
-	return &trackedError{
+func (r *IntRealm) Checkpoint(msg string, args ...any) *TrackedError {
+	return &TrackedError{
 		id:           r.newID(),
 		isCheckpoint: true,
 		msg:          fmtMsg(msg, args...),
