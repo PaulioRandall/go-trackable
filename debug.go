@@ -1,5 +1,3 @@
-// Package trackerr aims to facilitate creation of referenceable errors and
-// elegant stack traces.
 package trackerr
 
 import (

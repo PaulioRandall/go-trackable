@@ -1,12 +1,15 @@
 // Package trackerr aims to facilitate creation of referenceable errors and
 // elegant stack traces.
+//
+// The recommended way to create errors is via the Track, Checkpoint,
+// Untracked, and Wrap package functions. It is not recommended to create
+// trackable errors after initialisation but Realms should be used for such
+// purposes.
 package trackerr
 
 import (
 	"errors"
 )
-
-// TODO: Think about how to allow custom error ID generators.
 
 // TODO: Think about how to integrate file names and line numbers.
 // TODO: - How, where, and when to collect them?
@@ -14,8 +17,6 @@ import (
 // TODO: - May have to redesign the Debug function?
 
 var (
-	globalRealm IntRealm
-
 	// ErrTodo is a convenience tracked error for specifying a TODO.
 	//
 	// This can be useful if you're taking a stepwise refinement or test driven
@@ -28,38 +29,6 @@ var (
 	// ErrInsane is a convenience tracked error for sanity checking.
 	ErrInsane = Track("Sanity check failed!!")
 )
-
-// Untracked returns a new error without a tracking ID.
-//
-// It is no different than using errors.New except it has a handy fmt.Sprintf
-// signiture and a few extra receiving functions for any niche use cases one
-// may encounter.
-func Untracked(msg string, args ...any) *untrackedError {
-	return globalRealm.Untracked(msg, args...)
-}
-
-// Wrap returns a new untracked error that wraps a cause.
-func Wrap(cause error, msg string, args ...any) *untrackedError {
-	e := globalRealm.Untracked(msg, args...)
-	return e.Wrap(cause).(*untrackedError)
-}
-
-// Track returns a new tracked error from this package's singleton Realm.
-//
-// This is recommended way to use to create all trackable errors outside of
-// testing.
-func Track(msg string, args ...any) *trackedError {
-	return globalRealm.Track(msg, args...)
-}
-
-// Checkpoint returns a new trackable checkpoint error from this package's
-// singleton Realm.
-//
-// This is recommended way to use to create all checkpoint errors outside of
-// testing.
-func Checkpoint(msg string, args ...any) *trackedError {
-	return globalRealm.Checkpoint(msg, args...)
-}
 
 // HasTracked returns true if the error or one of the underlying causes are
 // tracked, i.e. those created via the Error and Checkpoint functions.

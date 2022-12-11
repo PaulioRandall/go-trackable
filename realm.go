@@ -3,9 +3,6 @@ package trackerr
 // Realm represents a space where each trackable error (stack trace node)
 // has its own unique ID.
 //
-// This is primarily for testing and avoids ID pool stack overflow even
-// though such a scenario is almost impossible if the API is used correctly.
-//
 // There is a private global Realm in the package that will suffice for most
 // purposes. It is used via the package level Track and Checkpoint functions.
 //
@@ -43,11 +40,7 @@ type Realm interface {
 // functions.
 type IntRealm struct {
 	idPool *int
-}
-
-// Untracked returns a new error without a tracking ID.
-func (r *IntRealm) Untracked(msg string, args ...any) *untrackedError {
-	return because(msg, args...)
+	locked bool
 }
 
 // Track returns a new tracked error from this package's singleton Realm.
