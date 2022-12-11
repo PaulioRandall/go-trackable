@@ -7,30 +7,35 @@ import (
 )
 
 var (
-	untrackedAlpha   = &UntrackedError{msg: "untracked alpha"}
-	untrackedBeta    = &UntrackedError{msg: "untracked beta"}
-	untrackedCharlie = &UntrackedError{msg: "untracked charlie"}
+	untrackedAlpha   = mockUntracked(nil, "untracked alpha")
+	untrackedBeta    = mockUntracked(nil, "untracked beta")
+	untrackedCharlie = mockUntracked(nil, "untracked charlie")
 
-	trackedAlpha   = &TrackedError{id: 1, msg: "tracked alpha"}
-	trackedBeta    = &TrackedError{id: 2, msg: "tracked beta"}
-	trackedCharlie = &TrackedError{id: 3, msg: "tracked charlie"}
+	trackedAlpha   = mockTracked(1, nil, "tracked alpha")
+	trackedBeta    = mockTracked(2, nil, "tracked beta")
+	trackedCharlie = mockTracked(3, nil, "tracked charlie")
 )
 
-func Test_IsTracked_1(t *testing.T) {
-	e := &TrackedError{
-		id:  1,
-		msg: "abc",
+func mockUntracked(cause error, msg string, args ...any) *UntrackedError {
+	return &UntrackedError{
+		cause: cause,
+		msg:   fmtMsg(msg, args...),
 	}
+}
 
-	require.True(t, IsTracked(e))
+func mockTracked(id int, cause error, msg string, args ...any) *TrackedError {
+	return &TrackedError{
+		id:             id,
+		UntrackedError: *Wrap(cause, msg, args...),
+	}
+}
+
+func Test_IsTracked_1(t *testing.T) {
+	require.True(t, IsTracked(trackedAlpha))
 }
 
 func Test_IsTracked_2(t *testing.T) {
-	e := &UntrackedError{
-		msg: "abc",
-	}
-
-	require.False(t, IsTracked(e))
+	require.False(t, IsTracked(untrackedAlpha))
 }
 
 func Test_HasTracked_1(t *testing.T) {

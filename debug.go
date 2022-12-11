@@ -13,10 +13,14 @@ func Debug(e error) (int, error) {
 	s := ErrorStack(e)
 
 	if s == "" {
-		return fmt.Print("[Debugging error] nil error")
+		return fmt.Print("[DEBUG ERROR] nil error")
 	}
 
-	return fmt.Print("[Debugging error]\n", s)
+	if IsCheckpoint(e) {
+		return fmt.Print("[DEBUG ERROR]\n", s)
+	} else {
+		return fmt.Print("[DEBUG ERROR]\n  ", s)
+	}
 }
 
 // DebugPanic recovers from a panic, prints out the error using the Debug

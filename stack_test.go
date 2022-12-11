@@ -19,7 +19,7 @@ func Test_ErrorStack_1(t *testing.T) {
 	act := ErrorStack(given)
 
 	expLines := []string{
-		"  abc",
+		"abc",
 		"⤷ efg",
 		"——hij——",
 		"⤷ klm",
@@ -31,10 +31,10 @@ func Test_ErrorStack_1(t *testing.T) {
 }
 
 func Test_AsStack_1(t *testing.T) {
-	klm := &UntrackedError{msg: "abc", cause: nil}
-	hij := &TrackedError{id: 2, msg: "hij", cause: klm}
-	efg := &UntrackedError{msg: "efg", cause: hij}
-	abc := &TrackedError{id: 1, msg: "abc", cause: efg}
+	klm := Untracked("klm")
+	hij := &TrackedError{id: 2, UntrackedError: *Wrap(klm, "hij")}
+	efg := Wrap(hij, "efg")
+	abc := &TrackedError{id: 1, UntrackedError: *Wrap(efg, "abc")}
 
 	act := AsStack(abc)
 	exp := []error{abc, efg, hij, klm}

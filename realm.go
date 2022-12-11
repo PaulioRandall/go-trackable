@@ -40,7 +40,6 @@ type Realm interface {
 // functions.
 type IntRealm struct {
 	idPool *int
-	locked bool
 }
 
 // Track returns a new tracked error.
@@ -49,8 +48,8 @@ type IntRealm struct {
 // the error is passed to them.
 func (r *IntRealm) Track(msg string, args ...any) *TrackedError {
 	return &TrackedError{
-		id:  r.newID(),
-		msg: fmtMsg(msg, args...),
+		UntrackedError: *Untracked(msg, args...),
+		id:             r.newID(),
 	}
 }
 
@@ -59,11 +58,12 @@ func (r *IntRealm) Track(msg string, args ...any) *TrackedError {
 // Calls to HasTracked, IsTracked, IsTrackerr, and IsCheckpoint will all return
 // true when the error is passed to them.
 func (r *IntRealm) Checkpoint(msg string, args ...any) *TrackedError {
-	return &TrackedError{
-		id:           r.newID(),
-		isCheckpoint: true,
-		msg:          fmtMsg(msg, args...),
+	e := &TrackedError{
+		UntrackedError: *Untracked(msg, args...),
+		id:             r.newID(),
 	}
+	e.isCp = true
+	return e
 }
 
 func (r *IntRealm) newID() int {

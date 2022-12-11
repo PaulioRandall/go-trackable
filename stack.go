@@ -14,39 +14,57 @@ type ErrorFormatter func(errMsg string, e error, isFirst bool) string
 // ErrorStack calls ErrorStackf with simple default formatting.
 //
 // Checkpoints are prefixed and suffixed with `——` while ordinary errors are
-// prefixed with `⤷ `:
+// prefixed with `⤷ `. if the first error is not a checkpoint then the prefix
+// is omitted:
 //
-//		——Workflow error——
+//		Workflow error
 //		⤷ Failed to read data
 //		⤷ Error handling CSV file
-//		——File could not be opened "splay/example/data/acid-rain.csv"——
+//		——File could not be opened "play/example/data/acid-rain.csv"——
 //		⤷ open splay/example/data/acid-rain.csv
 //		⤷ no such file or directory
 func ErrorStack(e error) string {
-	return ErrorStackf(e, func(msg string, e error, isFirst bool) string {
+	return ErrorStackf(e, func(errMsg string, e error, isFirst bool) string {
 		sb := strings.Builder{}
 
 		if IsCheckpoint(e) {
 			sb.WriteString("——")
-			sb.WriteString(msg)
+			sb.WriteString(errMsg)
 			sb.WriteString("——")
 			return sb.String()
 		}
 
-		if isFirst {
-			sb.WriteString("  ")
-		} else {
+		if !isFirst {
 			sb.WriteString("⤷ ")
 		}
 
-		sb.WriteString(msg)
+		sb.WriteString(errMsg)
 		return sb.String()
 	})
 }
 
-// ErrorStackf returns a human readable stack trace for the error.
+// ErrorStackf returns a human readable stack trace for the error. The format
+// function f may be nil for no formatting.
 //
-// The format function f may be nil for no formatting.
+//		alice := trackerr.Untracked("Alice's message")
+//		bob := trackerr.Checkpoint(alice, "Bob's message")
+//		charlie := trackerr.Wrap(bob, "Charlie's message")
+//		dan := trackerr.Wrap(charlie, "Dan's message")
+//
+//		s := trackerr.ErrorStackf(e, func(errMsg string, err error, isFirst bool) string {
+//			if isFirst {
+//				return "ERROR: " + errMsg
+//			}
+//			if trackerr.IsCheckpoint(err) {
+//				return "*** " + errMsg + " ***"
+//			}
+//			return "Caused by: " + errMsg
+//		}
+//
+//		// ERROR: Dan's message
+//		// Caused by: Charlie's message
+//		// *** Bob's message ***
+//		// Caused by: Alice's message
 func ErrorStackf(e error, f ErrorFormatter) string {
 	sb := strings.Builder{}
 
@@ -64,9 +82,20 @@ func ErrorStackf(e error, f ErrorFormatter) string {
 	return sb.String()
 }
 
-// AsStack recursively unwraps the error returning a slice of errors.
+// AsStack recursively unwraps the error returning a slice of errors. The
+// passed error e will be first and root cause last.
 //
-// The passed error e will be first and root cause last.
+//		alpha := trackerr.Untracked("alpha")
+//		beta := trackerr.Wrap(alpha, "beta")
+//		charlie := trackerr.Wrap(beta, "charlie")
+//
+//		result := AsStack(charlie)
+//
+//		// result: [
+//		// 	alpha,
+//		// 	beta,
+//		// 	charlie,
+//		// ]
 func AsStack(e error) []error {
 	var stack []error
 

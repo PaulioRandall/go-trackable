@@ -1,5 +1,12 @@
 package trackerr
 
+// ErrorWrapper represents an error that wraps new untracked errors.
+type ErrorWrapper interface {
+	// Because returns a copy of the receiving error constructing a cause from
+	// msg and args.
+	Because(msg string, args ...any) error
+}
+
 // UntrackedError represents an untrackable node in an error stack trace.
 //
 // An untracked error may also represents a checkpoint in an error stack. The
@@ -7,15 +14,15 @@ package trackerr
 // the key boundary between packages, libraries, systems, and other key
 // integration points.
 //
-// The aim of checkpoints is to enable stack trace partitioning so they are
-// more meaningful, readable, navigable. Thus aiding debugging. Key
-// information can then be highlighted in stack trace print outs.
+// The aim of checkpoints is to allow stack trace partitioning. Thus making
+// them more meaningful, readable, navigable during debugging.
 type UntrackedError struct {
-	msg          string
-	cause        error
-	isCheckpoint bool
+	msg   string
+	cause error
+	isCp  bool
 }
 
+// Error satisfies the error interface.
 func (e UntrackedError) Error() string {
 	return e.msg
 }
@@ -30,6 +37,14 @@ func (e UntrackedError) Unwrap() error {
 
 // Wrap returns a copy of the receiving error with the passed error as the
 // underlying cause.
+//
+//		cause := trackerr.Untracked("cause message")
+//		wrapper := trackerr.Tracked("wrapper message")
+//
+//		error := wrapper.Wrap(cause)
+//
+//		// wrapper message
+//		// ⤷ cause message
 func (e UntrackedError) Wrap(cause error) error {
 	e.cause = cause
 	return &e
@@ -37,6 +52,13 @@ func (e UntrackedError) Wrap(cause error) error {
 
 // Because returns a copy of the receiving error constructing a cause from
 // msg and args.
+//
+//		wrapper := trackerr.Tracked("wrapper message")
+//
+//		error := wrapper.Because("cause message")
+//
+//		// wrapper message
+//		// ⤷ cause message
 func (e UntrackedError) Because(msg string, args ...any) error {
 	e.cause = because(msg, args...)
 	return &e
@@ -44,6 +66,15 @@ func (e UntrackedError) Because(msg string, args ...any) error {
 
 // CausedBy returns a copy of the receiving error constructing a cause by
 // wrapping the passed cause with the error msg and args.
+//
+//		rootCause := trackerr.Untracked("root cause message")
+//		wrapper := trackerr.Tracked("wrapper message")
+//
+//		error := wrapper.CausedBy(cause, "caused by message")
+//
+//		// wrapper message
+//		// ⤷ caused by message
+//		// ⤷ root cause message
 func (e UntrackedError) CausedBy(cause error, msg string, args ...any) error {
 	e.cause = causedBy(cause, msg, args...)
 	return &e
@@ -53,6 +84,17 @@ func (e UntrackedError) CausedBy(cause error, msg string, args ...any) error {
 // error as an intermediate cause.
 //
 // The msg and args are for the intermediate CheckpointError's message.
+//
+//		rootCause := trackerr.Untracked("root cause message")
+//		cause := trackerr.Wrap(rootCause, "cause message")
+//		wrapper := trackerr.Tracked("wrapper message")
+//
+//		error := wrapper.Checkpoint(cause, "checkpoint message")
+//
+//		// wrapper message
+//		// ——checkpoint message——
+//		// ⤷ cause message
+//		// ⤷ root cause message
 func (e UntrackedError) Checkpoint(cause error, msg string, args ...any) error {
 	e.cause = checkpoint(cause, msg, args...)
 	return &e
@@ -61,16 +103,16 @@ func (e UntrackedError) Checkpoint(cause error, msg string, args ...any) error {
 // IsCheckpoint returns true if the error represents a checkpoint in the stack
 // trace.
 func (e UntrackedError) IsCheckpoint() bool {
-	return e.isCheckpoint
+	return e.isCp
 }
 
 // BecauseOf returns a copy of the receiving error calling Because on the
-// passed cause wrapping with the error msg and args.
+// passed ErrorWrapper wrapping with the error msg and args.
 //
 // Unlike the CausedBy function the cause here becomes an intermediate cause
 // rather than the root. This allows a single call to add two tracked errors
 // to the error stack at once.
-func (e UntrackedError) BecauseOf(cause Because, msg string, args ...any) error {
+func (e UntrackedError) BecauseOf(cause ErrorWrapper, msg string, args ...any) error {
 	e.cause = cause.Because(msg, args...)
 	return &e
 }

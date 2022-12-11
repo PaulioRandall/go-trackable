@@ -23,8 +23,8 @@ func causedBy(cause error, msg string, args ...any) *UntrackedError {
 
 func checkpoint(cause error, msg string, args ...any) *UntrackedError {
 	return &UntrackedError{
-		msg:          fmtMsg(msg, args...),
-		cause:        cause,
-		isCheckpoint: true,
+		msg:   fmtMsg(msg, args...),
+		cause: cause,
+		isCp:  true,
 	}
 }
