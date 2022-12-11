@@ -3,8 +3,11 @@
 //
 // The recommended way to create errors is via the Track, Checkpoint,
 // Untracked, and Wrap package functions. It is not recommended to create
-// trackable errors after initialisation but Realms should be used for such
-// purposes.
+// trackable errors after initialisation but Realms exist for any potential
+// use cases.
+//
+// It is recommended to call the Initialised function from an init function in
+// package main to prevent creation of trackable errors after initialisation.
 package trackerr
 
 import (

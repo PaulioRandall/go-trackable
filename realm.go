@@ -33,7 +33,7 @@ type Realm interface {
 // Error and Checkpoint package functions instead. If this package's API is
 // used as intended then it would be impossible to cause an integer overflow
 // scenario in any real world use case. However, Realms were conceived for such
-// an event and for those who really hate the idea of relying on a singleton
+// an event and for those who really hate the idea of relying on a global
 // Realm they have no control over.
 //
 // The incrementation happens on each call to Track and Checkpoint receiving
@@ -43,7 +43,10 @@ type IntRealm struct {
 	locked bool
 }
 
-// Track returns a new tracked error from this package's singleton Realm.
+// Track returns a new tracked error.
+//
+// Calls to HasTracked, IsTracked, and IsTrackerr will all return true when
+// the error is passed to them.
 func (r *IntRealm) Track(msg string, args ...any) *trackedError {
 	return &trackedError{
 		id:  r.newID(),
@@ -51,8 +54,10 @@ func (r *IntRealm) Track(msg string, args ...any) *trackedError {
 	}
 }
 
-// Checkpoint returns a new trackable checkpoint error from this package's
-// singleton Realm.
+// Checkpoint returns a new trackable checkpoint error.
+//
+// Calls to HasTracked, IsTracked, IsTrackerr, and IsCheckpoint will all return
+// true when the error is passed to them.
 func (r *IntRealm) Checkpoint(msg string, args ...any) *trackedError {
 	return &trackedError{
 		id:           r.newID(),

@@ -28,19 +28,27 @@ func Wrap(cause error, msg string, args ...any) *untrackedError {
 	return because(msg, args...).Wrap(cause).(*untrackedError)
 }
 
-// Track returns a new tracked error from this package's singleton Realm.
+// Track returns a new tracked error from this package's global Realm.
 //
 // This is recommended way to use to create all trackable errors outside of
 // testing.
 func Track(msg string, args ...any) *trackedError {
+	checkInitState()
 	return globalRealm.Track(msg, args...)
 }
 
 // Checkpoint returns a new trackable checkpoint error from this package's
-// singleton Realm.
+// global Realm.
 //
 // This is recommended way to use to create all checkpoint errors outside of
 // testing.
 func Checkpoint(msg string, args ...any) *trackedError {
+	checkInitState()
 	return globalRealm.Checkpoint(msg, args...)
+}
+
+func checkInitState() {
+	if globalInitialised {
+		panic(Untracked("No tracked errors may be created after initialisation. Initialise a package variable using this function instead."))
+	}
 }

@@ -1,5 +1,13 @@
 package trackerr
 
+// Because represents errors that can have a cause created and attached to
+// them.
+type Because interface {
+	// Because returns a copy of the receiving error constructing a cause from
+	// msg and args.
+	Because(msg string, args ...any) error
+}
+
 // TrackedError represents a trackable node in an error stack trace.
 //
 // A tracked error may also represents a checkpoint in an error stack. The
@@ -33,16 +41,6 @@ type TrackedError interface {
 	// rather than the root. This allows a single call to add two tracked errors
 	// to the error stack at once.
 	BecauseOf(cause Because, msg string, args ...any) error
-}
-
-// Because represents errors that can have a cause created and attached to
-// them.
-//
-// This interface is primarily for documentation.
-type Because interface {
-	// Because returns a copy of the receiving error constructing a cause from
-	// msg and args.
-	Because(msg string, args ...any) error
 }
 
 type trackedError struct {
