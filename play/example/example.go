@@ -21,7 +21,7 @@ var ErrExeWorkflow = trackerr.Checkpoint("Workflow error")
 func Run() {
 	defer trackerr.DebugPanic(nil)
 
-	e := executeWorkflow("splay/example/data/acid-rain.csv")
+	e := executeWorkflow("play/example/data/acid-rain.csv")
 	if e != nil {
 		trackerr.Debug(e)
 	}
