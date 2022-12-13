@@ -9,13 +9,15 @@ import (
 
 func Test_TrackedError_1(t *testing.T) {
 	a := &TrackedError{
-		id:             1,
-		UntrackedError: *Wrap(errors.New("Root cause"), "abc"),
+		id:    1,
+		msg:   "abc",
+		cause: errors.New("Root cause"),
 	}
 
 	b := &TrackedError{
-		id:             1,
-		UntrackedError: *Untracked("efg"),
+		id:    1,
+		msg:   "efg",
+		cause: errors.New("Root cause"),
 	}
 
 	require.True(t, a.Is(b))
@@ -23,13 +25,15 @@ func Test_TrackedError_1(t *testing.T) {
 
 func Test_TrackedError_2(t *testing.T) {
 	a := &TrackedError{
-		id:             1,
-		UntrackedError: *Wrap(errors.New("Root cause"), "abc"),
+		id:    1,
+		msg:   "abc",
+		cause: errors.New("Root cause"),
 	}
 
 	b := &TrackedError{
-		id:             2,
-		UntrackedError: *Wrap(errors.New("Root cause"), "abc"),
+		id:    2,
+		msg:   "abc",
+		cause: errors.New("Root cause"),
 	}
 
 	require.False(t, a.Is(b))

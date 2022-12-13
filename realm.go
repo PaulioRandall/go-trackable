@@ -48,8 +48,8 @@ type IntRealm struct {
 // the error is passed to them.
 func (r *IntRealm) Track(msg string, args ...any) *TrackedError {
 	return &TrackedError{
-		UntrackedError: *Untracked(msg, args...),
-		id:             r.newID(),
+		id:  r.newID(),
+		msg: fmtMsg(msg, args...),
 	}
 }
 
@@ -59,8 +59,8 @@ func (r *IntRealm) Track(msg string, args ...any) *TrackedError {
 // true when the error is passed to them.
 func (r *IntRealm) Checkpoint(msg string, args ...any) *TrackedError {
 	e := &TrackedError{
-		UntrackedError: *Untracked(msg, args...),
-		id:             r.newID(),
+		id:  r.newID(),
+		msg: fmtMsg(msg, args...),
 	}
 	e.isCp = true
 	return e

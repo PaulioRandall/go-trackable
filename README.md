@@ -1,182 +1,100 @@
-# Go Trackable
+# Trackerr
 
-> TODO: Rewrite this README
+Trackerr is a library for creating trackable, traceable, and comparable errors.
 
-Go Trackable is a library for creating trackable, traceable, and comparable errors.
+I crafted this package in frustration trying to decypher Go's printed error stack traces and the challenge of reliably asserting specific error types while testing.
+
+Many programmers assert using error messages (strings) but I've found this to be unreliable and leave me less than confident. trackerr attempts to rectify this by assigning errors there own unique identifiers which can be checked using errors.Is or one of trackerr's utility functions.
+
+The package is designed to work in compositional manner such that trackerr.Track and errors.new can be exchanged incrementally. Engineers may compose all their errors using trackerr or just a handful they want tracking support for.
+
+This keeps the error handling decision making and the power to change and adapt in the hands of the programmer. That is, I avoid the _my way or the highway_ mentality and aim to minimise _vendor lock-in_ as much as I can. If my package no longer provides adequate value it should be as easy as possible to remove it.
+
+It also helps to keep batch sizes small to better support changability which is a core value of Continuous Integration (CI) and Continuous Delivery (CD).
 
 I hope the code speaks mostly for itself so you don't have to trawl through my ramblings.
 
-## Quick start
+## Usage
+
+It's important to define errors created via trackerr.Track and trackerr.Checkpoint as global or you won't be able to reference them.
+
+You can return a tracked error directly but it's recommended to call one of the receiving functions `Wrap`, `CausedBy`, `Because`, `BecauseOf`, or `Checkpoint` with a cause or additional information; sometimes both.
+
+For manual debugging there's `trackerr.Debug` and deferable `trackerr.DebugPanic` which will print a readable stack trace of an error.
 
 ```go
-import "github.com/PaulioRandall/go-trackable"
+package main
 
-var (
-	ErrTooMuchText = trackable.Track("Too much text to write")
-	ErrCreatingFile = trackable.Track("Failed creating file")
-	ErrWritingText = trackable.Track("Failed writing text to file")
+import (
+	"os"
+
+	"github.com/PaulioRandall/go-trackerr"
 )
 
-func SaveText(filename, text string) {
-	e := writeTextToFile(filename, text)
-	if e != nil {
-		log.Println(trackable.ErrorStack(e))
+var (
+	ErrSavingText = trackerr.Checkpoint("Could not save text")
+	ErrOpeningFile = trackerr.Track("Fail to open file")
+	ErrWritingToFile = trackerr.Track("Failed writing text to file")
+)
+
+func main() {
+	filename := "./simpsons.txt" 
+	text := "Dental plan. Lisa needs braces."
+
+	var e error
+	defer trackerr.DebugPanic(&e)
+
+	if e = saveText(filename, text); e != nil {
+		trackerr.Debug(e)
 	}
-	
-	if trackable.Any(e, ErrCreatingFile, ErrWritingText) {
+
+	if trackerr.Any(e, ErrOpeningFile, ErrWritingToFile) {
 		log.Println("Did you forget file system permissions again?")
 	}
 }
 
-func writeTextToFile(filename, text string) error {
-	if len(text) > 256 {
-		return ErrTooMuchText.Because("I'm lazy and only want to write 256 bytes but you gave me %d", len(text))
+func saveText(filename, text string) error {
+	// ...
+
+	if e := writeTextToFile(filename, text); e != nil {
+		return ErrSavingText.Wrap(e)
 	}
-	
+
+	// ...
+
+	return nil
+}
+
+func writeTextToFile(filename, text string) error {
 	f, e := os.Create(filename)
 	if e != nil {
-		return ErrCreatingFile.BecauseOf(e, "File %q failed to open", filename)
+		return ErrOpeningFile.CausedBy(e, "Filename %q could not be created", filename)
 	}
 	defer f.Close()
 	
-	_, e := f.WriteString(text)
-	if e != nil {
+	if _, e := f.WriteString(text); e != nil {
 		return ErrWritingText.Wrap(e)
 	}
-	
-	// ...
+	return nil
 }
 
-// Resultant stack trace:
-//   Failed writing text to file
-// ⤷ Failed to open <filename>
-// ⤷ <the wrapped error's message>
-```
-
-## Usage
-
-The trackable errors returned by `trackable.Track` have a unique internal ID which is used for comparison by `errors.Is` or `trackable.Is`. The other error struct fields are irrelevant for such comparisons.
-
-It's important to define these errors as global or you won't be able to reference them. I'll talk about the `trackable.Interface` function a little later but it in the contexts of error tracking it's the same as `trackable.Track`.
-
-```go
-// Global variables
-var ErrReadingCSV = trackable.Track("Failed to read CSV file")
-var ErrReadingCSV = trackable.Interface("Failed to read CSV file")
-```
-
-When we want to track an error we have several options. Here is the full interface for errors returned by `trackable.Track` (and `trackable.Interface` for that matter). I don't expect this interface to be used much, if at all. But as an interface first software engineer I find them a great reference.
-
-```go
-// Trackable represents a trackable error. This interface is primarily for
-// documentation.
+// Stack trace if file could not be created:
 //
-// Trackable errors are just errors that one can use to precisely compare
-// without reference to the error message and easily construct elegant and
-// readable stack traces.
-type Trackable interface {
-	
-	// Unwrap returns the underlying cause or nil if none exists.
-	//
-	// It is designed to work with the Is function exposed by the standard errors
-	// package.
-	Unwrap() error
-	
-	// Is returns true if the passed error is equivalent to the receiving
-	// trackable error.
-	//
-	// This is a shallow comparison so causes are not checked. It is designed to
-	// work with the Is function exposed by the standard errors package.
-	Is(error) bool
-	
-	// Wrap returns a copy of the receiving error with the passed cause.
-	Wrap(cause error) error
-
-	// AsError returns a shallow copy of the trackable error as an error.
-	AsError() error
-	
-	// Because returns a copy of the receiving error constructing a cause from
-	// msg and args.
-	Because(msg string, args ...any) error
-	
-	// Because returns a copy of the receiving error constructing a cause by
-	// wrapping the passed cause with the error msg and args.
-	BecauseOf(cause error, msg string, args ...any) error
-	
-	// Interface is the same as Wrap but is given an interface name as to
-	// indicate it being at the boundary of a key interface.
-	//
-	// This allows stack traces to be partitioned so they are more meaningful,
-	// readable, and navigable.
-	Interface(cause error, name string) error
-
-	// InterfaceName returns the name the key interface or an empty string if no
-	// name was set.
-	InterfaceName() string
-}
+//		——Could not save text——
+//		⤷ Failed to open file
+//		⤷ Filename '/simpsons.txt' could not be created
+//		⤷ <error returned by os.Create>
 ```
 
-`Unwrap` and `Is` are receiving functions that work with Go's standard `errors` package. `AsError` produces a shallow copy as a standard error. `Interface` is described later and geared towards helping to create meaningful and navigable stack traces.
+## Testing
 
-`Wrap`, `Because`, and `BecauseOf` are the ones we are interested in first.
+One place trackerr becomes useful is when asserting errors in tests.
 
-### .Wrap
+Many programmers compare error messages but those messages are written for humans and by validating them in tests they become more cumbersome change. Furthermore, one wrong character can screw you over. I'd much prefer to separate the concerns of communicating with humans and asserting specific errors. Communicating correct and relevant information to human programmers is far harder so I'd like to improve error messages without having to worry about breaking tests. 
 
-Wrapping is straight forward. `e` will be wrapped by a **COPY** of `ErrReadingCSV`. All these functions return copies of themselves so pointer comparisons will not work. Use the `Is` receiving function if a comparison is needed.
+Another problem is pointer equality. Comparing pointers is better than comparing text but this means package scooped errors must be immutable, thus cannot have a cause attached to them or be wrapped. Wrapping trackerr errors produces copies allowing causes to be attached. However, calling `errors.Is(copy, original)` will still return true as internal IDs are used for equality checks and not string messages or pointers.
 
-```go
-func ReadCSV(filename string) error {
-	_, e := os.Open(filename)
-	if e != nil {
-		return ErrReadingCSV.Wrap(e)
-	}
-	// ...
-}
-
-// Resultant stack trace:
-//   Failed to read CSV file
-// ⤷ <the wrapped error's message>
-```
-
-### .Because
-
-We can create our own root cause. The `fmt.Sprintf` interface is used.
-
-```go
-func ReadCSV(filename string) error {
-	if !isValidCSVFile(filename) {
-		return ErrReadingCSV.Because("%q is not a valid CSV file", filename)
-	}
-	// ...
-}
-
-// Resultant stack trace:
-//   Failed to read CSV file
-// ⤷ '<filename>' is not a valid CSV file
-```
-
-### .BecauseOf
-
-We also have a convenience function which wraps the cause `e` in a new error which is then wrapped by `ErrReadingCSV`. This is useful when the underlying cause does not or cannot provide enough relevant details for debugging. The `fmt.Sprintf` interface is used again.
-
-```go
-func ReadCSV(filename string) error {
-	_, e := os.Open(filename)
-	if e != nil {
-		return ErrReadingCSV.BecauseOf(e, "Could not open %q", filename)
-	}
-	// ...
-}
-
-// Resultant stack trace:
-//   Failed to read CSV file
-// ⤷ Could not open '<filename>'
-// ⤷ <the wrapped error's message>
-```
-
-### Testing
-
-One place tracking becomes useful is when asserting errors in tests. Many programmers compare error messages but those messages are for humans and checking them in tests makes changing them more difficult and one wrong character can screw you over. I really don't like that. Using trackable errors means the messages can be freely changed and updated for human readers without screwing up tests.
+Unfortunately, this means `copy == original` will return false, but this is not much of a sacrifice since error pointer comparisons lost favour with the introduction of error wrapping ([Go 1.13](https://tip.golang.org/doc/go1.13#error_wrapping)). Use `errors.Is` or one of trackerr's utility functions instead.
 
 ```go
 import (
@@ -188,135 +106,28 @@ func TestReadingCSV(t *testing.T) {
 	e := ReadCSV("/bad/file/path")
 	
 	if !errors.Is(e, ErrReadingCSV) {
-		t.Log("Expected CSV read error but got either no error or a different error")
+		t.Log("Expected CSV read error")
 		t.Fail()
 	}
 }
 ```
 
-### .Interface
-
-The `Interface` receiving function has the same signature as `Because` but sets a name for the key interface boundary where the error was created or wrapped. It may be used to indicate when an error has been returned from a call to another package.
-
-It's a little nuanced but when printing the stack trace we highlight these interface error messages to indicate where the key checkpoints or interface boundaries are.
-
-```go
-var (
-	ErrDoingThing = trackable.Track("Failed to do the thing")
-	ErrDelegating = trackable.Track("Delegation returned an error")
-)
-
-func doThing() error {
-	if e := delegateDoingTheThing(); e != nil {
-		return ErrDoingThing.Wrap(e)
-	}
-	return nil
-}
-
-func delegateDoingTheThing() error {
-	if e := UnhappyAPI(); e != nil {
-		return ErrDelegating.InterfaceOf(e, "The Unhappy API returned an error")
-	}
-	return nil
-}
-
-func UnhappyAPI() error {
-	e := errors.New("UnhappyAPI error root cause")
-	e = fmt.Errorf("UnhappyAPI error that wraps the cause: %w", e)
-	return fmt.Errorf("UnhappyAPI error wrapping at the package boundary: %w", e)
-}
-
-// Resultant stack trace:
-//   Failed to do the thing
-// ⤷ Delegation returned an error
-// ——Interface: UnhappyAPI
-// ⤷ The Unhappy API returned an error
-// ⤷ UnhappyAPI error wrapping at the package boundary
-// ⤷ UnhappyAPI error that wraps the cause
-// ⤷ UnhappyAPI error root cause
-```
-
-## Convenience
-
-There are a bunch of convenience package functions available for handling these errors.
-
-```go
-// IsTracked returns true if the error has a trackable ID greater than zero.
-func IsTracked(e error) bool
-
-// Is is an alias for errors.Is. Because I like to keep a concise import list. 
-func Is(e, target error) bool
-
-// All returns true only if errors.Is returns true for all targets.
-func All(e error, targets ...error) bool
-
-// Any returns true if errors.Is returns true for any of the targets.
-func Any(e error, targets ...error) bool
-
-// Debug is convenience for fmt.Println("[Debug error]\n", ErrorStack(e)).
-func Debug(e error) (int, error)
-
-// ErrorStack is convenience for
-//    ErrorStackWith(e, "  ", "\n⤷ ", "\n——Interface: ", "\n").
-//
-// Output example:
-//      Failed to execuate packages
-//    ⤷ Could not do that thing
-//    ⤷ API returned an error
-//    ⤷ UnhappyAPI returned an error
-//    ——Interface——
-//    ⤷ This is the error wrapped at the API boundary
-//    ⤷ This is the root cause
-func ErrorStack(e error) string
-
-// ErrorStackWith returns a human readable representation of the error stack.
-//
-// Given:
-//    ErrorStackWith(e, "  ", "\n⤷ ", "\n——Interface: ", "\n").
-//
-// Output example:
-//      Failed to execuate packages
-//    ⤷ Could not do that thing
-//    ⤷ API returned an error
-//    ⤷ UnhappyAPI returned an error
-//    ——Interface: UnhappyAPI
-//    ⤷ This is the error wrapped at the API boundary
-//    ⤷ This is the root cause
-func ErrorStackWith(e error, prefix, delim, ifaceDelim, suffix string) string
-
-// AsStack recursively unwraps the error returning a slice of errors.
-//
-// The passed error will be first and root cause last.
-func AsStack(e error) []error
-
-// ErrorWithoutCause removes the cause from error messages that use the
-// standard concaternation.
-//
-// The standard concaternation being in the format '%s: %w' where s is the
-// error message and w is the cause's message.
-func ErrorWithoutCause(e error) string
-
-// InterfaceName returns the name of the interface where the error occurred if
-// one is available.
-func InterfaceName(e error) string
-```
-
 ## Common errors
 
-This package also provides a few common errors that you may want to return or panic with. 
+This package also provides a few common errors that you may want to return or panic with.
 
 ```go
 var (
-	// ErrTodo is a convenience trackable for specifying a TODO.
+	// ErrTodo is a convenience tracked error for specifying a TODO.
 	//
 	// This can be useful if you're taking a stepwise refinement or test driven
 	// approach to writing code.
 	ErrTodo = Track("TODO: Implementation needed")
-	
-	// ErrBug is a convenience trackable for use at the site of known bugs.
+
+	// ErrBug is a convenience tracked error for use at the site of known bugs.
 	ErrBug = Track("BUG: Fix needed")
-	
-	// ErrInsane is a convenience trackable for sanity checks.
+
+	// ErrInsane is a convenience tracked error for sanity checking.
 	ErrInsane = Track("Sanity check failed!!")
 )
 ```
@@ -326,22 +137,21 @@ var (
 1. Clone repo
 
 ```bash
-git clone https://github.com/PaulioRandall/go-trackable.git
+git clone https://github.com/PaulioRandall/go-trackerr.git
 ```
 
 2. Enter repo
 
 ```bash
-cd go-trackable
+cd go-trackerr
 ```
 
-3. Go commands can be used from here but my ./godo script eases things:
+3. Go commands can be used from here but my `./godo` script eases things:
 
 ```bash
 ./godo [help]   # Print usage
 ./godo doc[s]   # Fire up documentation server
 ./godo clean    # Clean Go caches and bin folder
-./godo fmt      # fmt
-./godo test     # fmt -> build -> test -> vet
+./godo build    # fmt -> build -> test -> vet
 ./godo play     # fmt -> build -> test -> vet -> play
 ```

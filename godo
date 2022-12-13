@@ -17,8 +17,7 @@ printUsage() {
 	println "\t" "./godo [help]" "\t\t" "# Print usage"
 	println "\t" "./godo doc[s]" "\t\t" "# Fire up documentation server"
 	println "\t" "./godo clean " "\t\t" "# Clean Go caches and build folder"
-	println "\t" "./godo fmt   " "\t\t" "# fmt"
-	println "\t" "./godo test  " "\t\t" "# fmt -> build -> test -> vet"
+	println "\t" "./godo build " "\t\t" "# fmt -> build -> test -> vet"
 	println "\t" "./godo play  " "\t\t" "# fmt -> build -> test -> vet -> play"
 }
 
@@ -34,9 +33,13 @@ goDoc() {
 	doc_port=":9999"
 
 	println "Documentation..."
+	println
 	println "\t" "Libs    - http://localhost${doc_port}/pkg/#thirdparty"
+	println
 	println "\t" "Go      - http://localhost${doc_port}/pkg/#stdlib"
+	println
 	println "\t" "All     - http://localhost${doc_port}/"
+	println
 	
 	godoc -http=${doc_port}
 }
@@ -97,13 +100,7 @@ if [[ "$1" == "clean" ]]; then
 	exit 0
 fi
 
-if [[ "$1" == "fmt" ]]; then
-	clean
-	goFmt
-	exit 0
-fi
-
-if [[ "$1" == "test" ]]; then
+if [[ "$1" == "build" ]]; then
 	clean
 	setup
 	goBuild

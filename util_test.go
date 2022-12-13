@@ -25,8 +25,9 @@ func mockUntracked(cause error, msg string, args ...any) *UntrackedError {
 
 func mockTracked(id int, cause error, msg string, args ...any) *TrackedError {
 	return &TrackedError{
-		id:             id,
-		UntrackedError: *Wrap(cause, msg, args...),
+		id:    id,
+		msg:   fmtMsg(msg, args...),
+		cause: cause,
 	}
 }
 
@@ -67,6 +68,26 @@ func Test_All_1(t *testing.T) {
 	require.False(t, All(e, a, b, trackedCharlie))
 }
 
+func Test_Allordered_1(t *testing.T) {
+	cu := untrackedCharlie
+	ct := trackedCharlie.Wrap(cu)
+	bu := untrackedBeta.Wrap(ct)
+	bt := trackedBeta.Wrap(bu)
+	au := untrackedAlpha.Wrap(bt)
+	at := trackedAlpha.Wrap(au)
+
+	e := at
+
+	require.True(t, AllOrdered(e))
+
+	require.True(t, AllOrdered(e, at, au))
+	require.False(t, AllOrdered(e, au, at)) // Reversed
+
+	require.True(t, AllOrdered(e, at, au, bt, bu, ct, cu))
+	require.False(t, AllOrdered(e, at, bt, bu, au, ct, cu)) // Badly placed au
+	require.False(t, AllOrdered(e, at, au, bt, bu, cu, ct)) // Swapped last two
+}
+
 func Test_Any_1(t *testing.T) {
 	c := untrackedCharlie
 	b := untrackedBeta.Wrap(c)
@@ -80,5 +101,6 @@ func Test_Any_1(t *testing.T) {
 	require.True(t, Any(e, b, c))
 	require.True(t, Any(e, c))
 
+	require.False(t, Any(e))
 	require.False(t, Any(e, trackedAlpha, trackedBeta, trackedCharlie))
 }

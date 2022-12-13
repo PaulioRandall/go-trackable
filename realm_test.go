@@ -15,8 +15,8 @@ func Test_IntRealm_1(t *testing.T) {
 
 	act := r.Track("abc%d%d%d", 1, 2, 3)
 	exp := &TrackedError{
-		id:             1,
-		UntrackedError: *Untracked("abc123"),
+		id:  1,
+		msg: "abc123",
 	}
 
 	require.Equal(t, exp, act)
@@ -29,8 +29,8 @@ func Test_IntRealm_2(t *testing.T) {
 	act := r.Track("efg%d%d%d", 4, 5, 6)
 
 	exp := &TrackedError{
-		id:             2,
-		UntrackedError: *Untracked("efg456"),
+		id:  2,
+		msg: "efg456",
 	}
 
 	require.Equal(t, exp, act)
@@ -41,8 +41,8 @@ func Test_IntRealm_3(t *testing.T) {
 
 	act := r.Checkpoint("abc%d%d%d", 1, 2, 3)
 	exp := &TrackedError{
-		id:             1,
-		UntrackedError: *Untracked("abc123"),
+		id:  1,
+		msg: "abc123",
 	}
 	exp.isCp = true
 

@@ -1,12 +1,5 @@
 package trackerr
 
-// ErrorWrapper represents an error that wraps new untracked errors.
-type ErrorWrapper interface {
-	// Because returns a copy of the receiving error constructing a cause from
-	// msg and args.
-	Because(msg string, args ...any) error
-}
-
 // UntrackedError represents an untrackable node in an error stack trace.
 //
 // An untracked error may also represents a checkpoint in an error stack. The
@@ -14,8 +7,8 @@ type ErrorWrapper interface {
 // the key boundary between packages, libraries, systems, and other key
 // integration points.
 //
-// The aim of checkpoints is to allow stack trace partitioning. Thus making
-// them more meaningful, readable, navigable during debugging.
+// Checkpoints allow stack trace partitioning. Thus making them more
+// meaningful, readable, and navigable during debugging.
 type UntrackedError struct {
 	msg   string
 	cause error

@@ -4,11 +4,6 @@ import (
 	"errors"
 )
 
-// TODO: Think about how to integrate file names and line numbers.
-// TODO: - How, where, and when to collect them?
-// TODO: - How to optimise print outs with them?
-// TODO: - May have to redesign the Debug function?
-
 var (
 	// ErrTodo is a convenience tracked error for specifying a TODO.
 	//
@@ -55,8 +50,12 @@ func IsTracked(e error) bool {
 
 // IsCheckpoint returns true if the error is a checkpoint.
 func IsCheckpoint(e error) bool {
-	if ute, ok := e.(*UntrackedError); ok {
-		return ute.IsCheckpoint()
+	type checkpointError interface {
+		IsCheckpoint() bool
+	}
+
+	if ce, ok := e.(checkpointError); ok {
+		return ce.IsCheckpoint()
 	}
 	return false
 }
@@ -69,9 +68,14 @@ func IsTrackerr(e error) bool {
 	return ok
 }
 
-// Is is an alias for errors.Is.
+// Is is a proxy for errors.Is.
 func Is(e, target error) bool {
 	return errors.Is(e, target)
+}
+
+// Unwrap is a proxy for errors.Unwrap.
+func Unwrap(e error) error {
+	return errors.Unwrap(e)
 }
 
 // All returns true only if errors.Is returns true for all targets.
@@ -81,6 +85,33 @@ func All(e error, targets ...error) bool {
 			return false
 		}
 	}
+	return true
+}
+
+// AllOrdered returns true only if errors.Is returns true for all targets and
+// the order of the targets matches the descending order of errors.
+//
+// This does not mean the depth of the error stack must be the same as the
+// number of targets. If three targets are supplied then true is returned if
+// during descent of the error stack:
+//		THE three targets exist in the error stack
+//		AND first target is found first
+//		AND the second target is found second
+//		And the third target is found last
+func AllOrdered(e error, targets ...error) bool {
+	if len(targets) == 0 {
+		return true
+	}
+
+	for _, t := range targets {
+		if !errors.Is(e, t) {
+			return false
+		}
+
+		for e = Unwrap(e); errors.Is(e, t); e = Unwrap(e) {
+		}
+	}
+
 	return true
 }
 
