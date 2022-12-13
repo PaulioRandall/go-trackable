@@ -4,19 +4,11 @@ Trackerr is a library for creating trackable, traceable, and comparable errors.
 
 I crafted this package in frustration trying to decypher Go's printed error stack traces and the challenge of reliably asserting specific error types while testing.
 
-Many programmers assert using error messages (strings) but I've found this to be unreliable and leave me less than confident. trackerr attempts to rectify this by assigning errors there own unique identifiers which can be checked using errors.Is or one of trackerr's utility functions.
-
-The package is designed to work in compositional manner such that trackerr.Track and errors.new can be exchanged incrementally. Engineers may compose all their errors using trackerr or just a handful they want tracking support for.
-
-This keeps the error handling decision making and the power to change and adapt in the hands of the programmer. That is, I avoid the _my way or the highway_ mentality and aim to minimise _vendor lock-in_ as much as I can. If my package no longer provides adequate value it should be as easy as possible to remove it.
-
-It also helps to keep batch sizes small to better support changability which is a core value of Continuous Integration (CI) and Continuous Delivery (CD).
-
 I hope the code speaks mostly for itself so you don't have to trawl through my ramblings.
 
 ## Usage
 
-It's important to define errors created via trackerr.Track and trackerr.Checkpoint as global or you won't be able to reference them.
+It's important to define errors created via `trackerr.Track` and `trackerr.Checkpoint` as global or you won't be able to reference them.
 
 You can return a tracked error directly but it's recommended to call one of the receiving functions `Wrap`, `CausedBy`, `Because`, `BecauseOf`, or `Checkpoint` with a cause or additional information; sometimes both.
 
@@ -86,11 +78,25 @@ func writeTextToFile(filename, text string) error {
 //		⤷ <error returned by os.Create>
 ```
 
+## Composition > Framing
+
+Many programmers test assert using error messages (strings) but I've found this to be unreliable and leave me feeling less than confident. trackerr attempts to rectify this by assigning errors there own unique identifiers which can be checked using errors.Is or one of trackerr's utility functions.
+
+The package is designed to work in compositional manner such that `trackerr.Track` and `errors.new` can be exchanged incrementally. Engineers may compose all their errors using trackerr or just a handful they want tracking support for. Many of trackerr's utility functions work irrespective of the underlying error types.
+
+Composition is much better for keeping the power to change and adapt in the hands of the programmer. I'm trying to minimise _my way or the highway_ mentality and _vendor lock-in_ in so much as I can. If my package no longer provides adequate value or there is something better then it should be easy to replace or remove.
+
+This approach also helps keep batch sizes small to better support the few teams that use Continuous Integration (CI) and Continuous Delivery (CD).
+
 ## Testing
 
 One place trackerr becomes useful is when asserting errors in tests.
 
+### Comparing error messages
+
 Many programmers compare error messages but those messages are written for humans and by validating them in tests they become more cumbersome change. Furthermore, one wrong character can screw you over. I'd much prefer to separate the concerns of communicating with humans and asserting specific errors. Communicating correct and relevant information to human programmers is far harder so I'd like to improve error messages without having to worry about breaking tests. 
+
+## Comparing error pointers
 
 Another problem is pointer equality. Comparing pointers is better than comparing text but this means package scooped errors must be immutable, thus cannot have a cause attached to them or be wrapped. Wrapping trackerr errors produces copies allowing causes to be attached. However, calling `errors.Is(copy, original)` will still return true as internal IDs are used for equality checks and not string messages or pointers.
 
