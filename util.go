@@ -5,16 +5,16 @@ import (
 )
 
 var (
-	// ErrTodo is a convenience tracked error for specifying a TODO.
+	// ErrTodo is a convenience trackable error for specifying a TODO.
 	//
 	// This can be useful if you're taking a stepwise refinement or test driven
 	// approach to writing code.
 	ErrTodo = Track("TODO: Implementation needed")
 
-	// ErrBug is a convenience tracked error for use at the site of known bugs.
+	// ErrBug is a convenience trackable error for use at the site of known bugs.
 	ErrBug = Track("BUG: Fix needed")
 
-	// ErrInsane is a convenience tracked error for sanity checking.
+	// ErrInsane is a convenience trackable error for sanity checking.
 	ErrInsane = Track("Sanity check failed!!")
 )
 
@@ -62,7 +62,7 @@ func IsCheckpoint(e error) bool {
 
 // IsTrackerr returns true if the error is either an UntrackedError or
 // TrackedError error from this package. That is, if it's an error defined
-// within go-trackerr.
+// by go-trackerr.
 func IsTrackerr(e error) bool {
 	_, ok := e.(UntrackedError)
 	return ok
@@ -85,6 +85,7 @@ func All(e error, targets ...error) bool {
 			return false
 		}
 	}
+
 	return true
 }
 
@@ -99,10 +100,6 @@ func All(e error, targets ...error) bool {
 //		AND the second target is found second
 //		And the third target is found last
 func AllOrdered(e error, targets ...error) bool {
-	if len(targets) == 0 {
-		return true
-	}
-
 	for _, t := range targets {
 		if !errors.Is(e, t) {
 			return false
@@ -115,12 +112,13 @@ func AllOrdered(e error, targets ...error) bool {
 	return true
 }
 
-// Any returns true if errors.Is returns true for any target.
+// Any returns true if errors.Is returns true for at least one target.
 func Any(e error, targets ...error) bool {
 	for _, t := range targets {
 		if errors.Is(e, t) {
 			return true
 		}
 	}
+
 	return false
 }

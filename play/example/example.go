@@ -12,12 +12,12 @@ var ErrExeWorkflow = trackerr.Checkpoint("Workflow error")
 
 // Run provides example usage of go-trackerr.
 //
-// Try breaking some of the parameters, logic, or data to see the error stack
-// traces that get produced.
+// Try breaking some of the inputs, logic, or data throughout the example to
+// see the error stack traces that get produced.
 //
-// The example is verbose in terms of errors on purpose to show off the various
-// features. In real usage I'd recommend maximising relevant information while
-// minimising tracked errors.
+// This example is verbose in terms of errors on purpose to show off the
+// various features. In real usage I'd recommend maximising relevant
+// information and coherence while minimising errors.
 func Run() {
 	defer trackerr.DebugPanic(nil)
 

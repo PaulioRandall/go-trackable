@@ -2,7 +2,7 @@ package trackerr
 
 // TrackedError represents a trackable node in an error stack trace.
 //
-// A tracked error may also represents a checkpoint in an error stack. The
+// A tracked error may also represent a checkpoint in an error stack. The
 // primary purpose being to note interfaces in stack traces, that is, denote
 // the key boundary between packages, libraries, systems, and other key
 // integration points.
@@ -23,8 +23,8 @@ func (e TrackedError) Error() string {
 
 // Unwrap returns the error's underlying cause or nil if none exists.
 //
-// It is designed to work with the Is function exposed by the standard
-// errors package.
+// It is designed to work with errors.Is exposed by the standard errors
+// package.
 func (e TrackedError) Unwrap() error {
 	return e.cause
 }
@@ -112,10 +112,10 @@ func (e TrackedError) BecauseOf(cause ErrorWrapper, msg string, args ...any) err
 }
 
 // Is returns true if the passed error is equivalent to the receiving
-// error.
+// error. This is a shallow comparison so causes are not checked.
 //
-// This is a shallow comparison so causes are not checked. It is designed
-// to work with the Is function exposed by the standard errors package.
+// It satisfies the Is function referenced by errors.Is in the standard errors
+// package.
 func (e TrackedError) Is(other error) bool {
 	if e2, ok := other.(*TrackedError); ok {
 		return e.id == e2.id

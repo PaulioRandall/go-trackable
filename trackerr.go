@@ -1,37 +1,44 @@
 // Package trackerr aims to facilitate creation of referenceable errors and
 // elegant stack traces.
 //
-//		I crafted this package in reponse to my frustration in trying to
-//		decypher Go's printed error stack traces and the challenge of reliably
-//		asserting specific error types while testing.
+// It was crafted in frustration trying to navigate Go's printed error stacks
+// and the challenge of reliably asserting specific error types while testing.
 //
-//		Many programmers assert using error messages but I've found this to be
-//		unreliable and leave me less than confident. trackerr attempts to rectify
-//		this by assigning tracked errors there own unique identifiers which can
-//		be checked using errors.Is or one of trackerr's utility functions.
+// It's important to define errors created via Track and Checkpoint as
+// package scooped (global) or you won't be able to reference them. It is not
+// recommended to create trackable errors after initialisation but Realms do
+// exist if such use cases appear.
 //
-//		Paulio
+// It is also recommended to call Initialised from an init function in
+// package main to prevent the creation of trackable errors after program
+// initialisation.
 //
-// The recommended way to create errors is via the Track, Checkpoint,
-// Untracked, and Wrap package functions. It is not recommended to create
-// trackable errors after initialisation but Realms exist for such cases.
+// You can return a tracked error directly but it's recommended to call one of
+// the receiving functions Wrap, CausedBy, Because, BecauseOf, or Checkpoint
+// with additional information.
 //
-// It is also recommended to call the Initialised function from an init
-// function in package main to prevent creation of trackable errors after
-// program initialisation.
+// For manual debugging there's Debug and the deferable DebugPanic which will
+// print a readable stack trace.
+//
+// TODO
+// 		* Think about how to integrate file names and line numbers
+//		  - How, where, and when to collect them? (reflection)
+//		  - How to optimise print outs with them?
+//		  - May have to redesign the Debug function?
 package trackerr
 
 // ErrorWrapper represents an error that wraps new untracked errors.
 type ErrorWrapper interface {
+	error
+
 	// Because returns a copy of the receiving error constructing a cause from
+	// msg and args essentially creating and wrapping a causal error.
+	//
+	// Put another way, a call to errors.Unwrap using this functions returned
+	// error as input should yeild an underlying error with the supplied error
 	// msg and args.
 	Because(msg string, args ...any) error
 }
-
-// TODO: Think about how to integrate file names and line numbers.
-// TODO: - How, where, and when to collect them? (reflection)
-// TODO: - How to optimise print outs with them?
-// TODO: - May have to redesign the Debug function?
 
 var (
 	globalRealm       IntRealm

@@ -2,7 +2,7 @@ package trackerr
 
 // UntrackedError represents an untrackable node in an error stack trace.
 //
-// An untracked error may also represents a checkpoint in an error stack. The
+// An untracked error may also represent a checkpoint in an error stack. The
 // primary purpose being to note interfaces in stack traces, that is, denote
 // the key boundary between packages, libraries, systems, and other key
 // integration points.
@@ -22,8 +22,8 @@ func (e UntrackedError) Error() string {
 
 // Unwrap returns the error's underlying cause or nil if none exists.
 //
-// It is designed to work with the Is function exposed by the standard
-// errors package.
+// It is designed to work with errors.Is exposed by the standard errors
+// package.
 func (e UntrackedError) Unwrap() error {
 	return e.cause
 }
@@ -102,7 +102,7 @@ func (e UntrackedError) IsCheckpoint() bool {
 // BecauseOf returns a copy of the receiving error calling Because on the
 // passed ErrorWrapper wrapping with the error msg and args.
 //
-// Unlike the CausedBy function the cause here becomes an intermediate cause
+// Unlike the CausedBy function the cause here becomes an intermediate error
 // rather than the root. This allows a single call to add two tracked errors
 // to the error stack at once.
 func (e UntrackedError) BecauseOf(cause ErrorWrapper, msg string, args ...any) error {

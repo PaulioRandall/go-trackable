@@ -69,7 +69,7 @@ func ErrorStackf(e error, f ErrorFormatter) string {
 	sb := strings.Builder{}
 
 	for i, cause := range AsStack(e) {
-		errMsg := ErrorWithoutCause(cause)
+		errMsg := cause.Error()
 
 		if f != nil {
 			errMsg = f(errMsg, cause, i == 0)
@@ -85,15 +85,15 @@ func ErrorStackf(e error, f ErrorFormatter) string {
 // AsStack recursively unwraps the error returning a slice of errors. The
 // passed error e will be first and root cause last.
 //
-//		alpha := trackerr.Untracked("alpha")
-//		beta := trackerr.Wrap(alpha, "beta")
-//		charlie := trackerr.Wrap(beta, "charlie")
+//		charlie := trackerr.Untracked("Charlie's message")
+//		bob := trackerr.Wrap(charlie, "Bob's message")
+//		alice := trackerr.Wrap(bob, "Alice's message")
 //
-//		result := AsStack(charlie)
+//		result := AsStack(alice)
 //
 //		// result: [
-//		// 	alpha,
-//		// 	beta,
+//		// 	alice,
+//		// 	bob,
 //		// 	charlie,
 //		// ]
 func AsStack(e error) []error {
