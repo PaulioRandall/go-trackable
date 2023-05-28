@@ -20,9 +20,9 @@ import (
 )
 
 var (
-	ErrSavingText = trackerr.Checkpoint("Could not save text")
-	ErrOpeningFile = trackerr.Track("Fail to open file")
-	ErrWritingToFile = trackerr.Track("Failed writing text to file")
+	ErrSavingText = trackerr.New("Could not save text")
+	ErrOpeningFile = trackerr.New("Fail to open file")
+	ErrWritingToFile = trackerr.New("Failed writing text to file")
 )
 
 func init() {
@@ -60,7 +60,7 @@ func saveText(filename, text string) error {
 func writeTextToFile(filename, text string) error {
 	f, e := os.Create(filename)
 	if e != nil {
-		return ErrOpeningFile.CausedBy(e, "Filename %q could not be created", filename)
+		return ErrOpeningFile.BecauseOf(e, "Filename %q could not be created", filename)
 	}
 	defer f.Close()
 	
@@ -72,21 +72,21 @@ func writeTextToFile(filename, text string) error {
 
 // Stack trace if file could not be created:
 //
-//		——Could not save text——
+//		Could not save text
 //		⤷ Failed to open file
 //		⤷ Filename '/simpsons.txt' could not be created
 //		⤷ <error returned by os.Create>
 ```
 
-It's important to define errors created via `Track` and `Checkpoint` as package scooped (global) or you won't be able to reference them. It is not recommended to create trackable errors after initialisation but Realms do exist if such use cases appear.
+It's important to define errors created via `New` and `Track` as package scooped (global) or you won't be able to reference them. It is not recommended to create trackable errors after initialisation but Realms do exist for such cases.
 
-It is also recommended to call `Initialised` from an init function in package main to prevent the creation of trackable errors after program initialisation.
+It's also recommended to call `Initialised` from an init function in package main to prevent the creation of trackable errors after program initialisation.
 
-You can return a tracked error directly but it's recommended to call one of the receiving functions `Wrap`, `CausedBy`, `Because`, `BecauseOf`, or `Checkpoint` with additional information.
+You can return a tracked error directly but it's recommended to call one of the receiving functions `CausedBy`, `WrapBy`, `Because`, or `BecauseOf` with additional information.
 
 For manual debugging there's `trackerr.Debug` and the deferable `trackerr.DebugPanic` which will print a readable stack trace.
 
-You may also craft your own error types and wrap or be wrapped by trackerr errors. Any that implement the `ErrorWrapper` interface may be used as an argument to the `Tracked.BecauseOf` and `Untacked.BecauseOf`.
+You may also craft your own error types and wrap or be wrapped by trackerr errors.
 
 ### Testing
 
@@ -136,7 +136,7 @@ The design is largely usage lead and thus somewhat emergent. That is, I had proj
 
 ### Composition > Framing
 
-The package is designed to work in a compositional manner such that `trackerr.Track` and `errors.new` can be exchanged incrementally. Engineers may compose all their errors using trackerr or just the few that require tracking support. Most of trackerr's utility functions work on the `error` interface so the underlying error types matter little.
+The package is designed to work in a compositional manner such that `trackerr.New`, `trackerr.Track`, and `errors.new` can be exchanged incrementally. Engineers may compose all their errors using trackerr or just the few that require tracking support. Most of trackerr's utility functions work on the `error` interface so the underlying error types matter little.
 
 Composition is favoured over framing, when feasible, so the power to change and adapt, with needs and the times, remains in the hands of the consuming engineers. Essentially minimising the _my way or the highway_ and _vendor lock-in_ mentalities in so much as possible.
 
@@ -172,6 +172,5 @@ cd go-trackerr
 ./godo [help]   # Print usage
 ./godo doc[s]   # Fire up documentation server
 ./godo clean    # Clean Go caches and bin folder
-./godo test     # fmt -> build -> test -> vet
-./godo play     # fmt -> build -> test -> vet -> play
+./godo test     # fmt -> test -> vet
 ```

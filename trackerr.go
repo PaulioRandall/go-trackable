@@ -45,12 +45,6 @@ var (
 	ErrInsane = New("Sanity check failed!!")
 )
 
-func checkInitState() {
-	if globalInitialised {
-		panic(Untracked("No tracked errors may be created after initialisation."))
-	}
-}
-
 // All returns true only if errors.Is returns true for all targets.
 func All(e error, targets ...error) bool {
 	for _, t := range targets {

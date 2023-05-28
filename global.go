@@ -20,3 +20,9 @@ var (
 func Initialised() {
 	globalInitialised = true
 }
+
+func checkInitState() {
+	if globalInitialised {
+		panic(Untracked("No tracked errors may be created after initialisation."))
+	}
+}

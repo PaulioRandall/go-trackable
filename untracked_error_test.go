@@ -47,10 +47,10 @@ func Test_trackedError_3(t *testing.T) {
 	}
 
 	cause := &UntrackedError{
-		msg: "efg",
+		msg: "xyz",
 	}
 
-	act := given.BecauseOf(cause, "xyz")
+	act := given.BecauseOf(cause, "efg")
 
 	exp := &UntrackedError{
 		msg: "abc",

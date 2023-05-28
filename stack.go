@@ -133,13 +133,13 @@ func ErrorWithoutCause(e error) string {
 //		// head message
 //		// ⤷ mid level message
 //		// ⤷ root cause message
-func Stack(errs ...ErrorWrapper) error {
+func Stack(errs ...ErrorThatWraps) error {
 	if len(errs) == 0 {
 		return nil
 	}
 
-	var wrapErrors func(e ErrorWrapper, causes []ErrorWrapper) error
-	wrapErrors = func(e ErrorWrapper, causes []ErrorWrapper) error {
+	var wrapErrors func(e ErrorThatWraps, causes []ErrorThatWraps) error
+	wrapErrors = func(e ErrorThatWraps, causes []ErrorThatWraps) error {
 		if len(causes) == 0 {
 			return e
 		}

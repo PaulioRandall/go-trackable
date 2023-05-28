@@ -33,25 +33,22 @@ func (e TrackedError) Because(msg string, args ...any) error {
 	return &e
 }
 
-// BecauseOf first calls cause.Because with the error msg and args as arguments
-// then attaches the resultant error as the cause of the receiving error.
+// BecauseOf creates a new error using the msg, args, and cause as arguments
+// then attaches the result as the cause of the receiving error.
 //
-// The cause must satisfy the ErrorWrapper interface.
+// Put another way, the cause argument becomes the root cause in
+// the error stack.
 //
-// Put another way, the cause (ErrorWrapper) becomes an intermediate error in
-// the error stack. This allows a single call to add two errors to the error
-// stack at once.
+//		top := trackerr.New("top message")
+//		cause := trackerr.New("root cause message")
 //
-//		top := trackerr.New("top level message")
-//		mid := trackerr.New("mid level message")
+//		e := top.BecauseOf(cause, "middle message")
 //
-//		e := top.BecauseOf(mid, "low level message")
-//
-//		// top level message
-//		// ⤷ mid level message
-//		// ⤷ low level message
-func (e TrackedError) BecauseOf(cause ErrorWrapper, msg string, args ...any) error {
-	e.cause = cause.Because(msg, args...)
+//		// top message
+//		// ⤷ middle message
+//		// ⤷ root cause message
+func (e TrackedError) BecauseOf(cause error, msg string, args ...any) error {
+	e.cause = Untracked(msg, args...).CausedBy(cause)
 	return &e
 }
 
@@ -105,6 +102,6 @@ func (e TrackedError) Unwrap() error {
 //
 //		// wrapper message
 //		// ⤷ cause message
-func (e TrackedError) WrapBy(wrapper ErrorWrapper) error {
+func (e TrackedError) WrapBy(wrapper ErrorThatWraps) error {
 	return wrapper.CausedBy(e)
 }
