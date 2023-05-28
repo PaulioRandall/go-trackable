@@ -13,26 +13,14 @@ type ErrorFormatter func(errMsg string, e error, isFirst bool) string
 
 // ErrorStack calls ErrorStackf with simple default formatting.
 //
-// Checkpoints are prefixed and suffixed with `——` while ordinary errors are
-// prefixed with `⤷ `. if the first error is not a checkpoint then the prefix
-// is omitted:
-//
 //		Workflow error
 //		⤷ Failed to read data
 //		⤷ Error handling CSV file
-//		——File could not be opened "play/example/data/acid-rain.csv"——
 //		⤷ open splay/example/data/acid-rain.csv
 //		⤷ no such file or directory
 func ErrorStack(e error) string {
 	return ErrorStackf(e, func(errMsg string, e error, isFirst bool) string {
 		sb := strings.Builder{}
-
-		if IsCheckpoint(e) {
-			sb.WriteString("——")
-			sb.WriteString(errMsg)
-			sb.WriteString("——")
-			return sb.String()
-		}
 
 		if !isFirst {
 			sb.WriteString("⤷ ")
@@ -129,4 +117,36 @@ func ErrorWithoutCause(e error) string {
 	s = strings.TrimSuffix(s, cause.Error())
 	s = strings.TrimSpace(s)
 	return strings.TrimSuffix(s, ":")
+}
+
+// Stack accepts a an array of ErrorWrappers and converts it into a stack trace
+// by recursively calling CasuedBy.
+//
+// The first item will become the head and the last item the root cause.
+//
+//		head := trackerr.New("head message")
+//		mid := trackerr.New("mid level message")
+//		root := trackerr.New("root cause message")
+//
+//		e := Stack(head, mid, root)
+//
+//		// head message
+//		// ⤷ mid level message
+//		// ⤷ root cause message
+func Stack(errs ...ErrorWrapper) error {
+	if len(errs) == 0 {
+		return nil
+	}
+
+	var wrapErrors func(e ErrorWrapper, causes []ErrorWrapper) error
+	wrapErrors = func(e ErrorWrapper, causes []ErrorWrapper) error {
+		if len(causes) == 0 {
+			return e
+		}
+
+		cause := wrapErrors(causes[0], causes[1:])
+		return e.CausedBy(cause)
+	}
+
+	return wrapErrors(errs[0], errs[1:])
 }

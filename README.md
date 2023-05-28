@@ -1,5 +1,7 @@
 # Trackerr
 
+> TODO: This README needs updating!
+
 Package trackerr aims to facilitate creation of referenceable errors and elegant stack traces.
 
 It was crafted in frustration trying to navigate Go's printed error stacks and the challenge of reliably asserting specific error types while testing.
@@ -170,6 +172,6 @@ cd go-trackerr
 ./godo [help]   # Print usage
 ./godo doc[s]   # Fire up documentation server
 ./godo clean    # Clean Go caches and bin folder
-./godo build    # fmt -> build -> test -> vet
+./godo test     # fmt -> build -> test -> vet
 ./godo play     # fmt -> build -> test -> vet -> play
 ```

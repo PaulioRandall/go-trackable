@@ -10,18 +10,19 @@ import (
 func Test_ErrorStack_1(t *testing.T) {
 	r := IntRealm{}
 
-	te := r.Track("abc")
-	cp := r.Checkpoint("hij")
+	abc := r.New("abc")
+	efg := r.New("efg")
+	hij := r.New("hij")
+	klm := r.New("klm")
 
-	given := cp.Because("klm")
-	given = te.CausedBy(given, "efg")
+	given := abc.CausedBy(efg.CausedBy(hij.CausedBy(klm)))
 
 	act := ErrorStack(given)
 
 	expLines := []string{
 		"abc",
 		"⤷ efg",
-		"——hij——",
+		"⤷ hij",
 		"⤷ klm",
 		"",
 	}
@@ -43,11 +44,13 @@ func Test_AsStack_1(t *testing.T) {
 }
 
 func Test_DebugPanic_1(t *testing.T) {
+	a := New("a")
+
 	given := func() (e error) {
 		defer DebugPanic(&e)
 
 		if true {
-			panic(trackedAlpha)
+			panic(a)
 		}
 
 		return nil
@@ -55,5 +58,20 @@ func Test_DebugPanic_1(t *testing.T) {
 
 	e := given()
 
-	require.Equal(t, e, trackedAlpha)
+	require.Equal(t, e, a)
+}
+
+func Test_Stack_1(t *testing.T) {
+	a := New("a")
+	b := New("b")
+	c := New("c")
+
+	e := Stack(a, b, c)
+	require.True(t, a.Is(e))
+
+	e = Unwrap(e)
+	require.True(t, b.Is(e))
+
+	e = Unwrap(e)
+	require.True(t, c.Is(e))
 }

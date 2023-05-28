@@ -16,11 +16,7 @@ func Debug(e error) (int, error) {
 		return fmt.Print("[DEBUG ERROR] nil error")
 	}
 
-	if IsCheckpoint(e) {
-		return fmt.Print("[DEBUG ERROR]\n", s)
-	} else {
-		return fmt.Print("[DEBUG ERROR]\n  ", s)
-	}
+	return fmt.Print("[DEBUG ERROR]\n  ", s)
 }
 
 // DebugPanic recovers from a panic, prints out the error using the Debug

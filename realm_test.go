@@ -35,16 +35,3 @@ func Test_IntRealm_2(t *testing.T) {
 
 	require.Equal(t, exp, act)
 }
-
-func Test_IntRealm_3(t *testing.T) {
-	r := IntRealm{}
-
-	act := r.Checkpoint("abc%d%d%d", 1, 2, 3)
-	exp := &TrackedError{
-		id:  1,
-		msg: "abc123",
-	}
-	exp.isCp = true
-
-	require.Equal(t, exp, act)
-}
