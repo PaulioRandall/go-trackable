@@ -90,18 +90,3 @@ func (e TrackedError) Is(other error) bool {
 func (e TrackedError) Unwrap() error {
 	return e.cause
 }
-
-// WrapBy sets the cause of the wrapper error as the receiving error.
-//
-// Put another way, it performs wrapper.CausedBy(receivingError).
-//
-//		cause := trackerr.Untracked("cause message")
-//		wrapper := trackerr.New("wrapper message")
-//
-//		e := cause.WrapBy(wrapper)
-//
-//		// wrapper message
-//		// ⤷ cause message
-func (e TrackedError) WrapBy(wrapper ErrorThatWraps) error {
-	return wrapper.CausedBy(e)
-}

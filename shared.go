@@ -10,6 +10,9 @@ type ErrorThatWraps interface {
 
 	// CausedBy wraps the passed causal error.
 	CausedBy(cause error) error
+
+	// Unwrap returns the error's underlying cause or nil if none exists.
+	Unwrap() error
 }
 
 func fmtMsg(msg string, args ...any) string {

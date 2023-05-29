@@ -31,13 +31,13 @@ func Test_ErrorStack_1(t *testing.T) {
 	require.Equal(t, exp, act)
 }
 
-func Test_AsStack_1(t *testing.T) {
+func Test_SliceStack_1(t *testing.T) {
 	klm := &UntrackedError{msg: "klm"}
 	hij := &TrackedError{id: 2, msg: "hij", cause: klm}
 	efg := &UntrackedError{msg: "efg", cause: hij}
 	abc := &TrackedError{id: 1, msg: "abc", cause: efg}
 
-	act := AsStack(abc)
+	act := SliceStack(abc)
 	exp := []error{abc, efg, hij, klm}
 
 	require.Equal(t, exp, act)
