@@ -3,32 +3,11 @@
 //
 // It was crafted in frustration trying to navigate Go's printed error stacks
 // and the challenge of reliably asserting specific error types while testing.
-//
-// It's important to define errors created via New or Track as package scooped
-// (global) or you won't be able to reference them. It is not recommended to
-// create trackable errors after initialisation, but if you need to then Realms
-// exist for such use cases.
-//
-// It's also recommended to call Initialised from an init function in package
-// main to prevent the creation of trackable errors after program
-// initialisation.
-//
-// You can return a tracked error directly but most of the time you would call
-// one of the following receiving functions CausedBy, Because, or BecauseOf
-// with additional information.
-//
-// For manual debugging there's Debug and the deferable DebugPanic which will
-// print a readable stack trace.
-//
-// TODO
-// 		* Think about how to integrate file names and line numbers
-//		  - How, where, and when to collect them? (reflection)
-//		  - How to optimise print outs with them?
-//		  - May have to redesign the Debug function?
 package trackerr
 
 import (
 	"errors"
+	"fmt"
 )
 
 var (
@@ -44,6 +23,17 @@ var (
 	// ErrInsane is a convenience trackable error for sanity checking.
 	ErrInsane = New("Sanity check failed!!")
 )
+
+// ErrorThatWraps represents an error that wraps new untracked errors.
+type ErrorThatWraps interface {
+	error
+
+	// CausedBy wraps the passed causal error.
+	CausedBy(cause error) error
+
+	// Unwrap returns the error's underlying cause or nil if none exists.
+	Unwrap() error
+}
 
 // All returns true only if errors.Is returns true for all targets.
 func All(e error, targets ...error) bool {
@@ -142,4 +132,47 @@ func IsTrackerr(e error) bool {
 // Unwrap is a proxy for errors.Unwrap.
 func Unwrap(e error) error {
 	return errors.Unwrap(e)
+}
+
+// Debug pretty prints the error stack trace to terminal for debugging
+// purposes.
+//
+// If e is nil then a message will be printed indicating so. This function is
+// not designed for logging, just day to day manual debugging.
+func Debug(e error) (int, error) {
+	s := ErrorStack(e)
+
+	if s == "" {
+		return fmt.Print("[DEBUG ERROR] nil error")
+	}
+
+	return fmt.Print("[DEBUG ERROR]\n  ", s)
+}
+
+// DebugPanic recovers from a panic, prints out the error using the Debug
+// function, and finally sets it as the catch error's pointer value.
+//
+// If nil is passed as the catch then the panic continues after printing.
+//
+// If the panic value is not an error the panic will continue!
+//
+// This function is not designed for logging, just day to day manual debugging.
+func DebugPanic(catch *error) {
+	v := recover()
+
+	if v == nil {
+		return
+	}
+
+	e, ok := v.(error)
+	if !ok {
+		panic(v)
+	}
+
+	Debug(e)
+
+	if catch == nil {
+		panic(e)
+	}
+	*catch = e
 }
