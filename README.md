@@ -8,7 +8,14 @@ I hope the code speaks mostly for itself so you don't have to trawl through my r
 
 ## API
 
-`TrackedError` and `UntrackedError` are structs but have been specified here as interfaces for documentation purposes only.
+```go
+import (
+	// Package imported is just called 'trackerr' 
+	"github.com/PaulioRandall/go-trackerr"
+)
+```
+
+**Please note:** `TrackedError` and `UntrackedError` are structs but I've specified them here as interfaces for documentation purposes.
 
 ```go
 var (
@@ -53,23 +60,27 @@ type ErrorThatWraps interface {
 	CausedBy(cause error) error
 }
 
+// Actually a struct
 type TrackedError interface {
 	error
 
 	CausedBy(cause error)
 	Because(msg string, args ...any) error
 	BecauseOf(cause error, msg string, args ...any) error
+	ContextFor(cause ErrorThatWraps, rootCause error) error
 
 	Is(error) bool
 	Unwrap() error
 }
 
+// Actually a struct
 type UntrackedError interface {
 	error
 
 	CausedBy(cause error)
 	Because(msg string, args ...any) error
 	BecauseOf(cause error, msg string, args ...any) error
+	ContextFor(cause ErrorThatWraps, rootCause error) error
 
 	Unwrap() error
 }
@@ -88,7 +99,7 @@ It's important to define errors created via `New` and `Track` as package scooped
 
 **Wrapping errors**
 
-You can return a tracked or untracked error directly but it's recommended to call one of the receiving functions `CausedBy`, `Because`, or `BecauseOf` with additional information.
+You can return a tracked or untracked error directly but it's recommended to call one of the receiving functions `CausedBy`, `Because`, `BecauseOf`, or `ContextFor` with additional information.
 
 ```go
 var (
@@ -113,6 +124,11 @@ func Because() error {
 func BecauseOf() error {
 	e := trackerr.Untracked("Database file '%s' not found", dbFile)
 	return ErrLoadingData.BecauseOf(e, "Could not open database")
+}
+
+func ContextFor() error {
+	e := trackerr.Untracked("Database file '%s' not found", dbFile)
+	return ErrLoadingData.ContextFor(ErrOpeningDatabase, e)
 }
 ```
 
@@ -218,8 +234,7 @@ var (
 
 func main() {
 	e := myError{ msg: "Could not open database" }
-	e = e.CausedBy(ErrFileNotFound)
-	e = ErrLoadingData.CausedBy(e)
+	e = ErrLoadingData.ContextFor(ErrFileNotFound, e)
 	_ = e
 }
 ```
@@ -231,16 +246,34 @@ One place trackerr becomes useful is when asserting errors in tests.
 Trackerr assigns errors there own private unique identifiers which are used for comparison by `errors.Is` and trackerr's utility functions. This separates the concerns of communicating with humans from asserting that specific errors occur when they should.
 
 ```go
+// csvreader.go
+
+import (
+	"errors"
+)
+
+var ErrParsingCSV = trackerr.New("Could not parse CSV")
+
+func ReadCSV(file string) error {
+	...
+
+	return ErrParsingCSV
+}
+```
+
+```go
+// csvreader_test.go
+
 import (
 	"errors"
 	"testing"
 )
 
-func TestReadingBadCSV(t *testing.T) {
-	e := ReadCSV("/but/bad/file/path/instead")
+func TestReadCSV_InvalidFormat(t *testing.T) {
+	e := ReadCSV("/path/to/csv/file")
 	
-	if !errors.Is(e, ErrReadingCSV) {
-		t.Log("Expected CSV read error")
+	if !errors.Is(e, ErrParsingCSV) {
+		t.Log("Expected ErrParsingCSV error")
 		t.Fail()
 	}
 }

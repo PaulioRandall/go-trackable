@@ -66,6 +66,23 @@ func (e TrackedError) CausedBy(cause error) error {
 	return &e
 }
 
+// ContextFor wraps the cause with the intention that it provides context for
+// it. The rootCause is first wrapped by the cause if it's not nil.
+//
+//		context := trackerr.New("context message")
+//		cause := trackerr.New("cause message")
+//		rootCause := trackerr.Untracked("root cause message")
+//
+//		e := context.ContextFor(cause, rootCause)
+//
+//		// context message
+//		// ⤷ cause message
+//		// ⤷ root cause message
+func (e TrackedError) ContextFor(cause ErrorThatWraps, rootCause error) error {
+	c := cause.CausedBy(rootCause)
+	return e.CausedBy(c)
+}
+
 // Error satisfies the error interface.
 func (e TrackedError) Error() string {
 	return e.msg
