@@ -150,3 +150,17 @@ func Stack(errs ...ErrorThatWraps) error {
 
 	return wrapErrors(errs[0], errs[1:])
 }
+
+// Squash calls trackerr.ErrorStack with the error e then uses the
+// result as the message for a new error; which is returned.
+func Squash(e error) error {
+	s := ErrorStack(e)
+	return Untracked(s)
+}
+
+// Squashf is the same as squash but allows an ErrorFormatter to be used to
+// format the error stack string.
+func Squashf(e error, f ErrorFormatter) error {
+	s := ErrorStackf(e, f)
+	return Untracked(s)
+}

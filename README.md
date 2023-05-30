@@ -44,6 +44,8 @@ func Unwrap(e error) error
 
 func Stack(errs ...ErrorThatWraps) error
 func SliceStack(e error) []error
+func Squash(e error) error
+func Squashf(e error, f ErrorFormatter) error
 func ErrorStack(e error) string
 func ErrorStackf(e error, f ErrorFormatter) string
 func ErrorWithoutCause(e error) string
