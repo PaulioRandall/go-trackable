@@ -15,9 +15,11 @@ func Test_ErrorStack_1(t *testing.T) {
 	hij := r.New("hij")
 	klm := r.New("klm")
 
-	given := abc.CausedBy(efg.CausedBy(hij.CausedBy(klm)))
+	hij.cause = klm
+	efg.cause = hij
+	abc.cause = efg
 
-	act := ErrorStack(given)
+	act := ErrorStack(abc)
 
 	expLines := []string{
 		"abc",
@@ -66,7 +68,7 @@ func Test_Stack_1(t *testing.T) {
 	b := New("b")
 	c := New("c")
 
-	e := Stack(a, b, c)
+	e := Stack(c, b, a)
 	require.True(t, a.Is(e))
 
 	e = Unwrap(e)

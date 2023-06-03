@@ -7,23 +7,6 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-func Test_UntrackedError_1(t *testing.T) {
-	rootCause := errors.New("Root cause")
-
-	given := &UntrackedError{
-		msg: "abc",
-	}
-
-	act := given.CausedBy(rootCause)
-
-	exp := &UntrackedError{
-		msg:   "abc",
-		cause: rootCause,
-	}
-
-	require.Equal(t, exp, act)
-}
-
 func Test_UntrackedError_2(t *testing.T) {
 	given := &UntrackedError{
 		msg: "abc",
@@ -60,6 +43,23 @@ func Test_trackedError_3(t *testing.T) {
 				msg: "xyz",
 			},
 		},
+	}
+
+	require.Equal(t, exp, act)
+}
+
+func Test_UntrackedError_4(t *testing.T) {
+	rootCause := errors.New("Root cause")
+
+	given := &UntrackedError{
+		msg: "abc",
+	}
+
+	act := given.CausedBy(rootCause)
+
+	exp := &UntrackedError{
+		msg:   "abc",
+		cause: rootCause,
 	}
 
 	require.Equal(t, exp, act)

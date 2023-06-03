@@ -42,7 +42,7 @@ func IsTracked(e error) bool
 func IsTrackerr(e error) bool
 func Unwrap(e error) error
 
-func Stack(errs ...ErrorThatWraps) error
+func Stack(rootCause error, errs ...ErrorThatWraps) error
 func SliceStack(e error) []error
 func Squash(e error) error
 func Squashf(e error, f ErrorFormatter) error
@@ -59,30 +59,30 @@ type ErrorFormatter func(errMsg string, e error, isFirst bool) string
 
 type ErrorThatWraps interface {
 	error
-	CausedBy(cause error) error
+	CausedBy(rootCause error, causes ...ErrorThatWraps) error
 }
 
-// Actually a struct
-type TrackedError interface {
-	error
+type TrackedError interface { // Actually a struct in code
+	ErrorThatWraps
 
-	CausedBy(cause error)
+	Error() string
+
 	Because(msg string, args ...any) error
-	BecauseOf(cause error, msg string, args ...any) error
-	ContextFor(cause ErrorThatWraps, rootCause error) error
+	BecauseOf(rootCause error, msg string, args ...any) error
+	CausedBy(rootCause error, causes ...ErrorThatWraps) error
 
 	Is(error) bool
 	Unwrap() error
 }
 
-// Actually a struct
-type UntrackedError interface {
-	error
+type UntrackedError interface { // Actually a struct in code
+	ErrorThatWraps
 
-	CausedBy(cause error)
+	Error() string
+
 	Because(msg string, args ...any) error
-	BecauseOf(cause error, msg string, args ...any) error
-	ContextFor(cause ErrorThatWraps, rootCause error) error
+	BecauseOf(rootCause error, msg string, args ...any) error
+	CausedBy(rootCause error, causes ...ErrorThatWraps) error
 
 	Unwrap() error
 }

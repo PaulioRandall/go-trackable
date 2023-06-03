@@ -26,11 +26,12 @@ func Track(msg string, args ...any) *TrackedError {
 //
 //		e := wrapper.Because("cause message")
 //
-//		// wrapper message
-//		// ⤷ cause message
+//		```
+//		wrapper message
+//		⤷ cause message
+//		```
 func (e TrackedError) Because(msg string, args ...any) error {
-	e.cause = because(msg, args...)
-	return &e
+	return e.BecauseOf(nil, msg, args...)
 }
 
 // BecauseOf creates a new error using the msg, args, and cause as arguments
@@ -40,47 +41,53 @@ func (e TrackedError) Because(msg string, args ...any) error {
 // the error stack.
 //
 //		top := trackerr.New("top message")
-//		cause := trackerr.New("root cause message")
+//		rootCause := trackerr.New("root cause message")
 //
-//		e := top.BecauseOf(cause, "middle message")
+//		e := top.BecauseOf(rootCause, "middle message")
 //
-//		// top message
-//		// ⤷ middle message
-//		// ⤷ root cause message
-func (e TrackedError) BecauseOf(cause error, msg string, args ...any) error {
-	e.cause = Untracked(msg, args...).CausedBy(cause)
+//		```
+//		top message
+//		⤷ middle message
+//		⤷ root cause message
+//		```
+func (e TrackedError) BecauseOf(rootCause error, msg string, args ...any) error {
+	e.cause = Untracked(msg, args...).CausedBy(rootCause)
 	return &e
 }
 
-// CausedBy wraps the passed cause.
+// CausedBy wraps the rootCause within the first item in causes. Then the
+// second item in causes wraps the first. Then the third item wraps the second
+// and so on. Finally, the receiving error wraps the result before returning.
 //
-//		wrapper := trackerr.New("wrapper message")
-//		cause := trackerr.Untracked("cause message")
-//
-//		e := wrapper.CausedBy(cause)
-//
-//		// wrapper message
-//		// ⤷ cause message
-func (e TrackedError) CausedBy(cause error) error {
-	e.cause = cause
-	return &e
-}
-
-// ContextFor wraps the cause with the intention that it provides context for
-// it. The rootCause is first wrapped by the cause if it's not nil.
-//
-//		context := trackerr.New("context message")
-//		cause := trackerr.New("cause message")
+//		head := trackerr.New("head message")
+//		causeA := trackerr.New("cause message A")
+//		causeB := trackerr.New("cause message B")
 //		rootCause := trackerr.Untracked("root cause message")
 //
-//		e := context.ContextFor(cause, rootCause)
+//		e := head.CausedBy(rootCause, causeB, causeA)
 //
-//		// context message
-//		// ⤷ cause message
-//		// ⤷ root cause message
-func (e TrackedError) ContextFor(cause ErrorThatWraps, rootCause error) error {
-	c := cause.CausedBy(rootCause)
-	return e.CausedBy(c)
+//		```
+//		head message
+//		⤷ cause message A
+//		⤷ cause message B
+//		⤷ root cause message
+//		```
+//
+// CausedBy will very often be used to wrap a single error.
+//
+//		head := trackerr.New("head message")
+//		cause := trackerr.Untracked("cause message")
+//
+//		e := head.CausedBy(cause)
+//
+//		```
+//		head message
+//		⤷ cause message
+//		```
+func (e TrackedError) CausedBy(rootCause error, causes ...ErrorThatWraps) error {
+	c := Stack(rootCause, causes...)
+	e.cause = c
+	return &e
 }
 
 // Error satisfies the error interface.

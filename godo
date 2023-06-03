@@ -10,10 +10,10 @@ BUILD_FLAGS=""
 
 printUsage() {
 	println "Usage:"
-	println "\t" "./godo [help]" "\t\t" "# Print usage"
-	println "\t" "./godo doc[s]" "\t\t" "# Fire up documentation server"
-	println "\t" "./godo clean " "\t\t" "# Clean Go caches"
-	println "\t" "./godo test  " "\t\t" "# fmt -> build -> test -> vet"
+	println "\t" "./godo [help]       " "\t\t" "# Print usage"
+	println "\t" "./godo docs         " "\t\t" "# Fire up documentation server"
+	println "\t" "./godo clean        " "\t\t" "# Clean Go caches"
+	println "\t" "./godo (test|commit)" "\t\t" "# fmt -> test -> vet"
 }
 
 println() {
@@ -64,7 +64,7 @@ if [[ "$1" == "" || "$1" == "help" ]]; then
 	exit 0
 fi
 
-if [[ "$1" == "doc" || "$1" == "docs" ]]; then
+if [[ "$1" == "docs" ]]; then
 	goDoc
 	exit 0
 fi
@@ -74,7 +74,7 @@ if [[ "$1" == "clean" ]]; then
 	exit 0
 fi
 
-if [[ "$1" == "test" ]]; then
+if [[ "$1" == "test" || "$1" == "commit" ]]; then
 	goFmt
 	goTest
 	goVet

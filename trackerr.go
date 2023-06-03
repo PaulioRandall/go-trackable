@@ -28,8 +28,11 @@ var (
 type ErrorThatWraps interface {
 	error
 
-	// CausedBy wraps the passed causal error.
-	CausedBy(cause error) error
+	// CausedBy wraps the rootCause within the first item in causes. Then the
+	// second item in causes wraps the first. Then the third item wraps the
+	// second and so on. Finally, the receiving error wraps the result before
+	// returning.
+	CausedBy(rootCause error, causes ...ErrorThatWraps) error
 
 	// Unwrap returns the error's underlying cause or nil if none exists.
 	Unwrap() error

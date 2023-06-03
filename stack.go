@@ -122,33 +122,27 @@ func ErrorWithoutCause(e error) string {
 // Stack accepts a an array of ErrorWrappers and converts it into a stack trace
 // by recursively calling CasuedBy.
 //
-// The first item will become the head and the last item the root cause.
+// The first item is the root cause and the last item the head.
 //
 //		head := trackerr.New("head message")
 //		mid := trackerr.New("mid level message")
 //		root := trackerr.New("root cause message")
 //
-//		e := Stack(head, mid, root)
+//		e := Stack(root, mid, head)
 //
 //		// head message
 //		// ⤷ mid level message
 //		// ⤷ root cause message
-func Stack(errs ...ErrorThatWraps) error {
-	if len(errs) == 0 {
+func Stack(e error, errs ...ErrorThatWraps) error {
+	if e == nil {
 		return nil
 	}
 
-	var wrapErrors func(e ErrorThatWraps, causes []ErrorThatWraps) error
-	wrapErrors = func(e ErrorThatWraps, causes []ErrorThatWraps) error {
-		if len(causes) == 0 {
-			return e
-		}
-
-		cause := wrapErrors(causes[0], causes[1:])
-		return e.CausedBy(cause)
+	for _, err := range errs {
+		e = err.CausedBy(e).(ErrorThatWraps)
 	}
 
-	return wrapErrors(errs[0], errs[1:])
+	return e
 }
 
 // Squash calls trackerr.ErrorStack with the error e then uses the
